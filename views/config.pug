@@ -1,0 +1,27 @@
+doctype html
+html
+    head
+        script(src='config.js')
+    body
+        if unregisteredSensors.length > 0
+            h1 Local sensors that are not registered: 
+            each sensor in unregisteredSensors
+                form(method='POST' action='/config/register-sensor')
+                    label(for='source') Source:
+                    input(type='text', name='source', value=sensor, readonly=true)
+                    label(for='type') Type:
+                    input(type='text', name='type', value='1W-TEMP', readonly=true)
+                    label(for='name') Name: 
+                    input(type='text', placeholder='sensor name' name='name')
+                    input(type='submit', value='Register sensor')
+        if registeredSensors.length > 0
+            h1 Registered sensors: 
+            each sensor in registeredSensors
+                form(method='POST' action='/config/edit-sensor')
+                    label(for='source') Srouce:
+                    input(type='text', name='source', value=sensor.devices_source, readonly=true)
+                    label(for='type') Type:
+                    input(type='text', name='type', value=sensor.devices_type, readonly=true)
+                    label(for='name') Name:
+                    input(type='text', name='name', value=sensor.devices_name, disabled=!sensor.connected)
+                    input(type='submit', value='Update sensor', disabled=!sensor.connected)
