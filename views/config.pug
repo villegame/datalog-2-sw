@@ -1,27 +1,37 @@
 doctype html
 html
     head
-        script(src='config.js')
+        title Sensor configuration
     body
         if unregisteredSensors.length > 0
             h1 Local sensors that are not registered: 
             each sensor in unregisteredSensors
                 form(method='POST' action='/config/register-sensor')
                     label(for='source') Source:
-                    input(type='text', name='source', value=sensor, readonly=true)
+                    input(type='text', name='source', value=sensor.source, readonly=true)
                     label(for='type') Type:
-                    input(type='text', name='type', value='1W-TEMP', readonly=true)
+                    input(type='text', name='type', value=sensor.type, readonly=true)
                     label(for='name') Name: 
                     input(type='text', placeholder='sensor name' name='name')
                     input(type='submit', value='Register sensor')
         if registeredSensors.length > 0
             h1 Registered sensors: 
-            each sensor in registeredSensors
-                form(method='POST' action='/config/edit-sensor')
-                    label(for='source') Srouce:
-                    input(type='text', name='source', value=sensor.devices_source, readonly=true)
-                    label(for='type') Type:
-                    input(type='text', name='type', value=sensor.devices_type, readonly=true)
-                    label(for='name') Name:
-                    input(type='text', name='name', value=sensor.devices_name, disabled=!sensor.connected)
-                    input(type='submit', value='Update sensor', disabled=!sensor.connected)
+            table
+                each sensor in registeredSensors
+                    tr
+                        td
+                            form(method='POST' action='/config/update-sensor')
+                                input(type='hidden', name='id', value=sensor.devices_id)
+                                label(for='source') Source:
+                                input(type='text', name='source', value=sensor.devices_source, readonly=true)
+                                label(for='type') Type:
+                                input(type='text', name='type', value=sensor.devices_type, readonly=true)
+                                label(for='name') Name:
+                                input(type='text', name='name', value=sensor.devices_name, disabled=!sensor.connected)
+                                label(for='enabled') Enabled:
+                                input(type='checkbox', name='enabled', checked=sensor.devices_enabled)
+                                input(type='submit', value='Update sensor', disabled=!sensor.connected)
+                        td
+                            form(method='POST' action='/config/delete-sensor?_method=DELETE')
+                                input(type='hidden', name='id', value=sensor.devices_id)
+                                input(type='submit', value='Delete sensor')
