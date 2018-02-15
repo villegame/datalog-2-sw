@@ -1,72 +1,96 @@
 var exec = require('child_process').exec;
-var db;
-var io;
-
+var async = require('async');
 
 var readInterval = 3000;
 
-/*
-init = function (database, http) {
-	if(!database) return console.error("Reader init error: Provided invalid database.");
-	if(!http) return console.error("Reader init error: Provided invalid http server.");
-	db = database;
-	io = require('socket.io')(http);
-};*/
+start = function (http, sensors) {
 
-start = function (database, http) {
-
-	if(!database) return console.error("Reader init error: Provided invalid database.");
-        if(!http) return console.error("Reader init error: Provided invalid http server.");
-        db = database;
         io = require('socket.io')(http);
 
 	setInterval(function () {
 
-		exec('python ./scripts/bme280.py', function (err, stdout, stderr) {
-			if (err)    console.log("error: ", err);
-			if (stdout) {
-				try {
-					var output = JSON.parse(stdout);
-					console.log("bme temp: ", output.temperature, "typeof ", typeof output.temperature);
-					console.log("bme hum : ", output.humidity, "typeof ", typeof output.humidity);
-					console.log("bme pres: ", output.pressure, "typeof ", typeof output.pressure);
+		var enabledSensors = [];
+		var localSensors = [];
 
-					io.emit('sensor-data', {sensor: 'bme', temp: output.temperature, hum: output.humidity, pres: output.pressure});
+		async.series([
+			function (done) {
+				sensors.getEnabledSensors(function (err, results) {
+					if (err) return done(err);
+					enabledSensors = results;
+					done();
+				});
+			},
+			function (done) {
+				sensors.getLocalSensors(function (err, results) {
+					if (err) return done(err);
+					localSensors = results;
+					done();
+				});
+			}],
+			function (err) {
 
-				} catch (err) {
-					console.log("Error parsing bme280 sensor data... ", err);
-				}
+				if (err) return console.error("Error getting sensors", err);
+
+				enabledSensors.forEach(function (eSensor) {
+					
+					// Check that sensor is connected (is present in local sensors)
+					var isConnected = false;
+					localSensors.forEach(function (lSensor) {
+						if(eSensor.devices_source == lSensor.source) isConnected = true;
+					});
+					if(!isConnected) return;
+
+					if(eSensor.devices_type == '1W-TEMP') {
+						exec('python ./scripts/1w.py ' + eSensor.devices_source, function (err, stdout, stderr) {
+							if (err) return console.error("Error reading 1W-TEMP sensor", err);
+							try {
+								var output = JSON.parse(stdout);
+								io.emit('sensor-data', { 
+									sensor: eSensor.type, 
+									temperature: output.temperature
+								});
+								sensors.addValues({
+									id: eSensor.devices_id, 
+									temperature: output.temperature,
+									humidity: null,
+									pressure: null
+								}, function (err, res) {
+									if (err) console.error("ERROR ADDING 1W-TEMP DATA", err);
+								});
+							} catch (err) {
+								console.error("Error parsing 1W-TEMP sensor data", err);
+							}
+						});
+					}
+					
+					if(eSensor.devices_type == 'BME-280') {
+						exec('python ./scripts/bme280.py', function (err, stdout, stderr) {
+							if (err) return console.error("Error reading BME-280 sensor", err);
+							try {
+								var output = JSON.parse(stdout);
+                                                                io.emit('sensor-data', {
+                                                                        sensor: eSensor.type,
+                                                                        temperature: output.temperature,
+									pressure: output.pressure,
+									humidity: output.humidity
+                                                                });
+                                                                sensors.addValues({
+                                                                        id: eSensor.devices_id,
+                                                                        temperature: output.temperature,
+                                                                        humidity: output.humidity,
+                                                                        pressure: output.pressure
+                                                                }, function (err, res) {
+									if (err) console.error("ERROR ADDING BME-280 DATA", err);
+								});
+							} catch (err) {
+								console.error("Error parsing BME-280 sensor data", err);
+							}
+						});
+					}
+
+				});
 			}
-			if (stderr) console.log("serr: ", stderr);
-		});
-		exec('python ./scripts/1w.py 28-800000289ce1', function (err, stdout, stderr) {
-			if (err)    console.log("error: ", err);
-			if (stdout) {
-				try {
-					var output = JSON.parse(stdout);
-					console.log("1w temp: ", output.temperature, "type of ", typeof output.temperature);
-
-					io.emit('sensor-data', {sensor: '1w', temp: output.temperature});
-				} catch (err) {
-					console.log("Error parsing 1w sensor data... ", err);
-				}
-			}
-			if (stderr) console.log("serr: ", stderr);
-		});
-
-
-		db.query("SELECT NOW()", function (err, res) {
-			if (err) return console.error("Error executing query", err);
-			console.log("RESULTS: ", res);			
-		});
-		
-		// 
-		// io.emit('sensor-data', {
-		// 	sensors : [{
-		// 		sensorId: id, 
-		// 		value: value
-		// 	}]
-		// } );
+		);
 
 	}, readInterval);
 };
