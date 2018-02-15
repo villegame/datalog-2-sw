@@ -1,23 +1,9 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var async = require('async');
-var exec = require('child_process').exec;
+var methodOverride = require('method-override');
 
-// This goes somewhere else?
-var getLocalSensors = function (cb) {
-        exec('python ./scripts/1w.py', function (err, stdout, stderr) {
-                if (err) return cb(err);
-                if (stderr) return cb(stderr);
-                try {
-                        cb(null,JSON.parse(stdout));
-                } catch (e) {
-                        return cb(e);
-                }
-        });
-};
-
-
-start = function (app, http, db) {
+start = function (app, http, sensors) {
 	app.set('views', './views');
 	app.set('view engine', 'pug');
 
@@ -25,6 +11,7 @@ start = function (app, http, db) {
 
 	app.use(bodyParser.json());
 	app.use(bodyParser.urlencoded({ extended: true }));
+        app.use(methodOverride('_method'));
 
 	app.get('/', function (req, res) {
 	        res.render('index');
@@ -37,13 +24,13 @@ start = function (app, http, db) {
 
 		async.parallel([
 			function (done) {
-				getLocalSensors(function (err, sensors) {
+				sensors.getLocalSensors(function (err, res) {
 					if (err) return done(err);
-					localSensors = sensors.sensors;
+					localSensors = res;
 					done();
 				});
 			}, function (done) {
-				db.getSensors(function (err, sensors) {
+				sensors.getAllSensors(function (err, sensors) {
 					if (err) return done(err);
 					storedSensors = sensors;
 					done();
@@ -60,7 +47,8 @@ start = function (app, http, db) {
 				localSensors.forEach(function (lSensor) {
 					var inDatabase = false;
 					storedSensors.forEach(function (sSensor) {
-						if (lSensor == sSensor.devices_source) inDatabase = true;
+						if (lSensor.type == "1W-TEMP" && sSensor.devices_type == "1W-TEMP" && lSensor.source == sSensor.devices_source) inDatabase = true;
+						if (lSensor.type == "BME-280" && sSensor.devices_type == "BME-280") inDatabase = true;
 					});
 					if (!inDatabase) unregisteredSensors.push(lSensor);
 				});
@@ -69,7 +57,8 @@ start = function (app, http, db) {
 				storedSensors.forEach(function (sSensor, i, array) {
 					var isLocal = false;
 					localSensors.forEach(function (lSensor) {
-						if (sSensor.devices_source == lSensor) isLocal = true;
+						if (sSensor.devices_type == "1W-TEMP" && sSensor.devices_source == lSensor.source) isLocal = true;
+						if (sSensor.devices_type == "BME-280" && lSensor.type == "BME-280") isLocal = true;
 					});
 					array[i].connected = isLocal;
 				});
@@ -84,23 +73,58 @@ start = function (app, http, db) {
 
 	app.post('/config/register-sensor', function (req, res) {
 
-		console.log("type ", req.body.type, " ", typeof req.body.type);
-		console.log("name ", req.body.name, " ", typeof req.body.name);
-		console.log("source ", req.body.source, " ", typeof req.body.source);
-
 		if ( typeof req.body.type !== 'string'
 		  || typeof req.body.name !== 'string'
-		  || (req.body.type === '1W-TEMP' && typeof req.body.source !== 'string')) {
+		  || typeof req.body.source !== 'string') {
 			return res.status(400).send("Invalid input values.");
 		}
-		db.addSensor({
-			type : req.body.type,
-			name : req.body.name, 
+
+		sensors.addSensor({
+			type: req.body.type,
+			name: req.body.name, 
 			source: req.body.source
 		}, function (err) {
 			if (err) return res.status(400).send(err);
-			res.status(201).send({msg:'ok'});
+			//res.status(201).send({msg:'ok'});
+			res.redirect('/config');
+
 		}); 
+	});
+
+	app.post('/config/update-sensor', function (req, res) {
+
+		if ( typeof req.body.id !== 'string'
+ 		  || typeof req.body.type !== 'string'
+		  || typeof req.body.name !== 'string'
+                  || typeof req.body.source !== 'string') {
+			return res.status(400).send("Invalid input values.");
+		}
+
+		sensors.updateSensor({
+			id: req.body.id,
+			name: req.body.name,
+                        enabled: req.body.enabled ? true : false
+		}, function (err) {
+			if (err) return res.status(400).send(err);
+			//res.status(201).send({msg:'ok'});
+			res.redirect('/config');
+
+		});
+
+		
+	});
+
+	app.delete('/config/delete-sensor', function (req, res) {
+		
+		if (typeof req.body.id !== 'string') return res.status(400).send("Invalid input values.");
+
+		sensors.deleteSensor({
+			id: req.body.id
+		}, function (err) {
+			if (err) return res.status(400).send(err);
+			//res.send({msg: 'ok'});
+			res.redirect('/config');
+		});
 	});
 
 	app.get('/archives', function (req, res) {
