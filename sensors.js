@@ -55,11 +55,58 @@ deleteSensor = function (data, cb) {
 };
 
 getEnabledSensors = function (cb) {
-        db.query("select devices_id, devices_source, devices_type from temp_mon_schema.devices where devices_enabled=true;", cb);
+        db.query("select devices_id, devices_name, devices_source, devices_type from temp_mon_schema.devices where devices_enabled=true;", cb);
 };
 
 addValues = function (data, cb) {
-	db.query("insert into temp_mon_schema.values (devices_id, values_temperature, values_humidity, values_pressure) values ("+data.id+", "+data.temperature+", "+data.humidity+", "+data.pressure+");", cb);
+	db.query("insert into temp_mon_schema.values (devices_id, values_temperature, values_humidity, values_pressure, values_time) values ("+data.id+", "+data.temperature+", "+data.humidity+", "+data.pressure+", "+data.time+");", cb);
+};
+
+getValues = function (cb) {
+	var valueList = [];
+	var past = new Date() - (30 * 60 * 1000);
+	
+
+	async.series([
+		function (done) {
+			getEnabledSensors(function (err, devices) {
+				if (err) return done(err);
+				devices.forEach(function (device) {
+					valueList.push({
+						id: device.devices_id,
+						name: device.devices_name,
+						type: device.devices_type,
+						color: 'blue',
+						time: [],
+						temperature: [],
+						humidity: [],
+						pressure: []
+					});
+				});
+				done();
+			});
+		},
+		function (done) {
+			async.mapSeries(valueList, function(data, callback) {
+				db.query("select values_temperature, values_humidity, values_pressure, values_time from temp_mon_schema.values where devices_id="+data.id+" and values_time > "+past+" ;", function (err, values) {
+					if (err) return callback(err);
+					values.forEach(function(value) {
+						data['time'].push(value.values_time);
+						data['temperature'].push(value.values_temperature);
+						data['humidity'].push(value.values_humidity);
+						data['pressure'].push(value.values_pressure);
+					});	
+					return callback();
+				});
+
+			}, function (err) {
+				return done(err);
+			});
+
+		}
+	], function (err) {
+		cb (err, valueList);
+	});
 };
 
 module.exports = {
@@ -71,4 +118,5 @@ module.exports = {
         deleteSensor: deleteSensor,
         getEnabledSensors: getEnabledSensors,
 	addValues: addValues,
+	getValues: getValues
 };
