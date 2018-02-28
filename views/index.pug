@@ -3,7 +3,8 @@ html
     head
         meta(charser='utf-8')
         script(src='/socket.io/socket.io.js')
-        script(src='d3/d3.min.js')
+        script(src='plotly/plotly-latest.min.js')
+        script(src='jquery/jquery-3.3.1.min.js')
         script(src='charts.js')
         style
             include style.css
@@ -14,34 +15,24 @@ html
                     a(href='/config') Config sensors
                 td
                     a(href='/archive') Past measurements
-        h1 Temperatures
-        div(class="temperature graph")
-        h1 Humidity
-        div(class="humidity graph")
-        h1 Pressure
-        div(class="pressure graph")
+        div(id='tempgraph')
+        div(id='humgraph')
+        div(id='presgraph')
         script.
-            var w = window, 
-            windowX = w.innerWidth,
-            windowY = w.innerHeight;
-            var tempChart = new LineChart({
-                property: "temperature", 
-                placement: ".temperature", 
-                sizeX: windowX, 
-                sizeY: windowY, 
-                ratioX: 0.8, 
-                ratioY: 0.3});
-            var humChart = new LineChart({
-                property: "humidity", 
-                placement: ".humidity", 
-                sizeX: windowX, 
-                sizeY: windowY, 
-                ratioX: 0.8, 
-                ratioY: 0.3});
-            var presChart = new LineChart({
-                property: "pressure", 
-                placement: ".pressure", 
-                sizeX: windowX, 
-                sizeY: windowY, 
-                ratioX: 0.8, 
-                ratioY: 0.3});
+            var tempChart = new LineChart();
+            tempChart.init({
+                placement: 'tempgraph',
+                property: 'temperature'
+            });
+
+            var humChart = new LineChart();
+            humChart.init({
+                placement: 'humgraph', 
+                property: 'humidity'
+            });
+
+            var presChart = new LineChart();
+            presChart.init({
+                placement: 'presgraph', 
+                property: 'pressure'
+            });
