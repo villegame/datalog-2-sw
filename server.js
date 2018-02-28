@@ -131,6 +131,17 @@ start = function (app, http, sensors) {
 		res.render('archives');
 	});
 
+	app.get('/values', function (req, res) {
+		sensors.getValues(function (err, values) {
+			if (err) return res.status(400).send(err);
+			try {
+				res.send(JSON.stringify(values));
+			} catch (e) {
+				return res.status(400).send(e);
+			}
+		});
+	});
+
 	http.listen(8888, function () {
 	        console.log('listening port 8888');
 	});
