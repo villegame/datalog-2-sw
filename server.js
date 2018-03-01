@@ -18,57 +18,10 @@ start = function (app, http, sensors) {
 	});
 
 	app.get('/config', function (req, res) {
-
-		var localSensors = [];
-		var storedSensors = [];
-
-		async.parallel([
-			function (done) {
-				sensors.getLocalSensors(function (err, res) {
-					if (err) return done(err);
-					localSensors = res;
-					done();
-				});
-			}, function (done) {
-				sensors.getAllSensors(function (err, sensors) {
-					if (err) return done(err);
-					storedSensors = sensors;
-					done();
-				});
-			}], function (err) {
-				if (err) {
-					console.error("Error getting sensors", err);
-					return res.status(500).send("Error getting sensors.");
-				}
-
-				var unregisteredSensors = [];
-              			var removedSensors = [];
-
-				localSensors.forEach(function (lSensor) {
-					var inDatabase = false;
-					storedSensors.forEach(function (sSensor) {
-						if (lSensor.type == "1W-TEMP" && sSensor.devices_type == "1W-TEMP" && lSensor.source == sSensor.devices_source) inDatabase = true;
-						if (lSensor.type == "BME-280" && sSensor.devices_type == "BME-280") inDatabase = true;
-					});
-					if (!inDatabase) unregisteredSensors.push(lSensor);
-				});
-
-
-				storedSensors.forEach(function (sSensor, i, array) {
-					var isLocal = false;
-					localSensors.forEach(function (lSensor) {
-						if (sSensor.devices_type == "1W-TEMP" && sSensor.devices_source == lSensor.source) isLocal = true;
-						if (sSensor.devices_type == "BME-280" && lSensor.type == "BME-280") isLocal = true;
-					});
-					array[i].connected = isLocal;
-				});
-
-				res.render('config', {
-					unregisteredSensors: unregisteredSensors, 
-					registeredSensors: storedSensors,
-				});
-			}
-		);
+		sensors.getAllSensors(function (err, sensors) {
+			if (err) return res.status(500).send("Error getting sensors.");
+			res.render('config', sensors);
+		});
 	});
 
 	app.post('/config/register-sensor', function (req, res) {

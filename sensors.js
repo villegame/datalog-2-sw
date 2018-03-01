@@ -38,7 +38,7 @@ var getLocalSensors = function (cb) {
         );
 };
 
-getAllSensors = function (cb) {
+getSensorsFromDb = function (cb) {
         db.query("select devices_id, devices_type, devices_name, devices_source, devices_enabled, devices_color, devices_screen, devices_screen_order from temp_mon_schema.devices order by devices_id;", cb);
 };
 
@@ -118,14 +118,68 @@ getValues = function (cb) {
 	});
 };
 
+getAllSensors = function (cb) {
+        var localSensors = [];
+        var storedSensors = [];
+
+        async.series([
+                function (done) {
+                        getLocalSensors(function (err, res) {
+
+                                if (err) return done(err);
+                                localSensors = res;
+                                done();
+                        });
+                }, function (done) {
+
+                        getSensorsFromDb(function (err, res) {
+
+                                if (err) return done(err);
+                                storedSensors = res;
+                                done();
+                        });
+                }], function (err) {
+                        if (err) return cb(err);
+
+                        var unregisteredSensors = [];
+                        var removedSensors = [];
+
+                        localSensors.forEach(function (lSensor) {
+                                var inDatabase = false;
+                                storedSensors.forEach(function (sSensor) {
+                                        if (lSensor.type == "1W-TEMP" && sSensor.devices_type == "1W-TEMP" && lSensor.source == sSensor.devices_source) inDatabase = true;
+                                        if (lSensor.type == "BME-280" && sSensor.devices_type == "BME-280") inDatabase = true;
+                                });
+                                if (!inDatabase) unregisteredSensors.push(lSensor);
+                        });
+
+                        storedSensors.forEach(function (sSensor, i, array) {
+                                var isLocal = false;
+                                localSensors.forEach(function (lSensor) {
+                                        if (sSensor.devices_type == "1W-TEMP" && sSensor.devices_source == lSensor.source) isLocal = true;
+                                        if (sSensor.devices_type == "BME-280" && lSensor.type == "BME-280") isLocal = true;
+                                });
+                                array[i].connected = isLocal;
+                        });
+
+			return cb(null, {
+				unregisteredSensors: unregisteredSensors,
+                                registeredSensors: storedSensors
+			});
+                }
+        );
+
+};
+
 module.exports = {
 	init: init, 
 	getLocalSensors: getLocalSensors,
-	getAllSensors: getAllSensors,
+//	getSensorsFromDb: getSensorsFromDb,
 	addSensor: addSensor, 
     	updateSensor: updateSensor,
         deleteSensor: deleteSensor,
         getEnabledSensors: getEnabledSensors,
 	addValues: addValues,
-	getValues: getValues
+	getValues: getValues,
+        getAllSensors: getAllSensors
 };
