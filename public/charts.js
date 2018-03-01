@@ -16,7 +16,6 @@ var LineChart = function () {
 
 		$.get('/values', function (data) {
 			try {
-				console.log("INIT DATA", data);
 				var initData = JSON.parse(data);
 				initData.forEach(function(item) {
 					
@@ -55,14 +54,13 @@ var LineChart = function () {
 				showgrid: true, 
 				zeroline: true,
 				showline: true,
-			}
+			},
+			showlegend: true
 		};
 		Plotly.plot(placement, graphData, layout);  
 	};
 
 	socket.on('sensor-data', function (data) {
-		console.log("Got data: ", data);
-
 		traceOrders.forEach(function(trace) {
 			if(trace.id == data.id && data.hasOwnProperty(property)) {
 				var time = data.time;
