@@ -2,7 +2,10 @@ doctype html
 html
     head
         title Sensor configuration
+        meta(charser='utf-8')
     body
+        include links
+
         if unregisteredSensors.length > 0
             h1 Local sensors that are not registered: 
             each sensor in unregisteredSensors
@@ -13,6 +16,15 @@ html
                     input(type='text', name='type', value=sensor.type, readonly=true)
                     label(for='name') Name: 
                     input(type='text', placeholder='sensor name' name='name')
+                    label(for='color') Graph Color:
+                    select(name='color')
+                        option(value='red') Red
+                        option(value='green') Green
+                        option(value='blue') Blue
+                        option(value='gold') Gold
+                        option(value='cyan') Cyan
+                        option(value='gray') Gray
+                        option(value='pink') Pink
                     input(type='submit', value='Register sensor')
         if registeredSensors.length > 0
             h1 Registered sensors: 
@@ -28,6 +40,15 @@ html
                                 input(type='text', name='type', value=sensor.devices_type, readonly=true)
                                 label(for='name') Name:
                                 input(type='text', name='name', value=sensor.devices_name, disabled=!sensor.connected)
+                                label(for='color') Color:
+                                select(name='color')
+                                    option(value='red', selected=sensor.devices_color=='red') Red
+                                    option(value='green', selected=sensor.devices_color=='green') Green
+                                    option(value='blue', selected=sensor.devices_color=='blue') Blue
+                                    option(value='gold', selected=sensor.devices_color=='gold') Gold
+                                    option(value='cyan', selected=sensor.devices_color=='cyan') Cyan
+                                    option(value='gray', selected=sensor.devices_color=='gray') Gray
+                                    option(value='pink', selected=sensor.devices_color=='pink') Pink
                                 label(for='enabled') Enabled:
                                 input(type='checkbox', name='enabled', checked=sensor.devices_enabled)
                                 input(type='submit', value='Update sensor', disabled=!sensor.connected)
