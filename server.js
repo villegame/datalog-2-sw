@@ -75,14 +75,16 @@ start = function (app, http, sensors) {
 
 		if ( typeof req.body.type !== 'string'
 		  || typeof req.body.name !== 'string'
-		  || typeof req.body.source !== 'string') {
+		  || typeof req.body.source !== 'string'
+                  || typeof req.body.color !== 'string') {
 			return res.status(400).send("Invalid input values.");
 		}
 
 		sensors.addSensor({
 			type: req.body.type,
 			name: req.body.name, 
-			source: req.body.source
+			source: req.body.source, 
+                        color: req.body.color
 		}, function (err) {
 			if (err) return res.status(400).send(err);
 			//res.status(201).send({msg:'ok'});
@@ -96,13 +98,15 @@ start = function (app, http, sensors) {
 		if ( typeof req.body.id !== 'string'
  		  || typeof req.body.type !== 'string'
 		  || typeof req.body.name !== 'string'
-                  || typeof req.body.source !== 'string') {
+                  || typeof req.body.source !== 'string'
+                  || typeof req.body.color !== 'string') {
 			return res.status(400).send("Invalid input values.");
 		}
 
 		sensors.updateSensor({
 			id: req.body.id,
 			name: req.body.name,
+                        color: req.body.color,
                         enabled: req.body.enabled ? true : false
 		}, function (err) {
 			if (err) return res.status(400).send(err);
