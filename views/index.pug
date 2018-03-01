@@ -9,12 +9,8 @@ html
         style
             include style.css
     body
-        table
-            tr
-                td
-                    a(href='/config') Config sensors
-                td
-                    a(href='/archive') Past measurements
+        include links
+
         div(id='tempgraph')
         div(id='humgraph')
         div(id='presgraph')
