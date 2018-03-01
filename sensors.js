@@ -39,15 +39,15 @@ var getLocalSensors = function (cb) {
 };
 
 getAllSensors = function (cb) {
-        db.query("select devices_id, devices_type, devices_name, devices_source, devices_enabled, devices_screen, devices_screen_order from temp_mon_schema.devices;", cb);
+        db.query("select devices_id, devices_type, devices_name, devices_source, devices_enabled, devices_color, devices_screen, devices_screen_order from temp_mon_schema.devices order by devices_id;", cb);
 };
 
 addSensor = function (data, cb) {
-	db.query("insert into temp_mon_schema.devices (devices_source, devices_name, devices_type, devices_enabled) values ('"+data.source+"', '"+data.name+"', '"+data.type+"', true);", cb);
+	db.query("insert into temp_mon_schema.devices (devices_source, devices_name, devices_type, devices_color, devices_enabled) values ('"+data.source+"', '"+data.name+"', '"+data.type+"', '"+data.color+"', true);", cb);
 };
 
 updateSensor = function (data, cb) {
-        db.query("update temp_mon_schema.devices set devices_name='"+data.name+"', devices_enabled="+data.enabled+" where devices_id="+data.id+";", cb);
+        db.query("update temp_mon_schema.devices set devices_name='"+data.name+"', devices_enabled="+data.enabled+", devices_color='"+data.color+"' where devices_id="+data.id+";", cb);
 };
 
 deleteSensor = function (data, cb) {
@@ -55,7 +55,7 @@ deleteSensor = function (data, cb) {
 };
 
 getEnabledSensors = function (cb) {
-        db.query("select devices_id, devices_name, devices_source, devices_type from temp_mon_schema.devices where devices_enabled=true;", cb);
+        db.query("select devices_id, devices_name, devices_source, devices_type, devices_color from temp_mon_schema.devices where devices_enabled=true order by devices_id;", cb);
 };
 
 addValues = function (data, cb) {
@@ -64,7 +64,7 @@ addValues = function (data, cb) {
 
 getValues = function (cb) {
 	var valueList = [];
-	var past = new Date() - (30 * 60 * 1000);
+	var past = new Date() - (8 * 60 * 60 * 1000);
 	
 
 	async.series([
@@ -72,16 +72,21 @@ getValues = function (cb) {
 			getEnabledSensors(function (err, devices) {
 				if (err) return done(err);
 				devices.forEach(function (device) {
-					valueList.push({
+					var newDevice = {
 						id: device.devices_id,
 						name: device.devices_name,
-						type: device.devices_type,
-						color: 'blue',
-						time: [],
-						temperature: [],
-						humidity: [],
-						pressure: []
-					});
+                       				type: device.devices_type,
+						color: device.devices_color,
+                                                time: []
+					};
+					if(newDevice.type == '1W-TEMP') {
+						newDevice['temperature'] = [];
+					} else if(newDevice.type == 'BME-280') {
+						newDevice['temperature'] = [];
+						newDevice['humidity'] = [];
+						newDevice['pressure'] = [];
+					}
+					valueList.push(newDevice);
 				});
 				done();
 			});
@@ -92,9 +97,13 @@ getValues = function (cb) {
 					if (err) return callback(err);
 					values.forEach(function(value) {
 						data['time'].push(value.values_time);
-						data['temperature'].push(value.values_temperature);
-						data['humidity'].push(value.values_humidity);
-						data['pressure'].push(value.values_pressure);
+						if(data.type == '1W-TEMP') {
+							data['temperature'].push(value.values_temperature);
+						} else if (data.type == 'BME-280') {
+							data['temperature'].push(value.values_temperature);
+							data['humidity'].push(value.values_humidity);
+							data['pressure'].push(value.values_pressure);
+						}
 					});	
 					return callback();
 				});
