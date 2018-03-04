@@ -1,0 +1,94 @@
+<!doctype html>
+
+<html ng-app="datalogUi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Optimize mobile viewport -->
+
+    <title>Sensor monitor</title>
+
+    <link rel="stylesheet" href="bootstrap/bootstrap.min.css">  <!-- load bootstrap -->
+    <link rel="stylesheet" href="style.css"> 			<!-- chart styles -->
+     
+    <style>
+        html                    { overflow-y:scroll; }
+        body                    { padding-top:50px; }
+        #todo-list              { margin-bottom:30px; }
+    </style>
+
+    <script src="jquery/jquery-3.3.1.min.js"></script> 	<!-- load jquery -->
+    <script src="angular/angular.min.js"></script> 	<!-- load angular -->
+    <script src="core.js"></script> 			<!-- load controller -->
+    <script src="/socket.io/socket.io.js"></script> 	<!-- load socket -->
+    <script src="plotly/plotly-latest.min.js"></script> <!-- load plotly -->
+    <script src="charts.js"></script> 			<!-- load charts -->
+
+</head>
+
+<body ng-controller="mainController">
+
+    <ul class="nav nav-pills nav-fill">
+        <li class="nav-item">
+            <a class="nav-link {{view=='home'?'active':''}}" href ng-click="changeView('home')"></span>Home!</a>
+	</li>
+        <li class="nav-item">
+	    <a class="nav-link {{view=='config'?'active':''}}" href ng-click="changeView('config')">Configure</a>
+	</li>
+        <li class="nav-item">
+	    <a class="nav-link {{view=='live'?'active':''}}" href ng-click="changeView('live')">LIVE!</a>
+	</li>
+    </ul>
+
+    <div class="container" ng-show="view=='home'">
+
+        <div class="jumbotron col-sm-8 offset-sm-2 text-center">
+            <h1 class="mx-auto display-4">Sensor monitor</h1>
+	    <p class="mx-auto lead">Awesome app to monitor stuff!</p>
+        </div>
+
+    </div>
+
+    <div class="container" ng-show="view=='config'" ng-cloak>
+<!--
+        <div id="some-form" class="row">
+            <div class="col-sm-8 offset-sm-2 text-center">
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control input-lg text-center" placeholder="placeholder" ng-model="formData.text">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg" ng-click="functionality()">Text</button>
+                </form>
+            </div>
+        </div>
+-->
+
+    </div>
+
+    <div class="container" ng-show="view=='live'" ng-cloak>
+	<div id='tempgraph'></div>
+	<div id='humgraph'></div>
+	<div id='presgraph'></div>
+	<script>
+            var tempChart = new LineChart();
+            tempChart.init({
+                placement: 'tempgraph',
+                property: 'temperature'
+            });
+
+            var humChart = new LineChart();
+            humChart.init({
+                placement: 'humgraph',
+                property: 'humidity'
+            });
+
+            var presChart = new LineChart();
+            presChart.init({
+                placement: 'presgraph',
+                property: 'pressure'
+            });
+	</script>
+    </div>
+
+</body>
+</html>
