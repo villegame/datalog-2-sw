@@ -4,23 +4,21 @@ var async = require('async');
 var methodOverride = require('method-override');
 
 start = function (app, http, sensors) {
-	app.set('views', './views');
-	app.set('view engine', 'pug');
 
 	app.use('/', express.static('public'));
 
 	app.use(bodyParser.json());
 	app.use(bodyParser.urlencoded({ extended: true }));
-        app.use(methodOverride('_method'));
+        app.use(methodOverride());
 
 	app.get('/', function (req, res) {
-	        res.render('index');
+		res.sendFile(__dirname + '/public/index.html');
 	});
 
 	app.get('/config', function (req, res) {
 		sensors.getAllSensors(function (err, sensors) {
 			if (err) return res.status(500).send("Error getting sensors.");
-			res.render('config', sensors);
+			res.send(sensors);
 		});
 	});
 
@@ -41,7 +39,8 @@ start = function (app, http, sensors) {
 		}, function (err) {
 			if (err) return res.status(400).send(err);
 			//res.status(201).send({msg:'ok'});
-			res.redirect('/config');
+			res.send({msg: 'ok'})
+			//res.redirect('/config');
 
 		}); 
 	});
@@ -63,8 +62,8 @@ start = function (app, http, sensors) {
                         enabled: req.body.enabled ? true : false
 		}, function (err) {
 			if (err) return res.status(400).send(err);
-			//res.status(201).send({msg:'ok'});
-			res.redirect('/config');
+			res.send({msg:'ok'});
+			//res.redirect('/config');
 
 		});
 
@@ -79,13 +78,9 @@ start = function (app, http, sensors) {
 			id: req.body.id
 		}, function (err) {
 			if (err) return res.status(400).send(err);
-			//res.send({msg: 'ok'});
-			res.redirect('/config');
+			res.send({msg: 'ok'});
+			//res.redirect('/config');
 		});
-	});
-
-	app.get('/archives', function (req, res) {
-		res.render('archives');
 	});
 
 	app.get('/values', function (req, res) {
