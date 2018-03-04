@@ -12,8 +12,9 @@
      
     <style>
         html                    { overflow-y:scroll; }
-        body                    { padding-top:50px; }
+        body                    { padding-top:10px; }
         #todo-list              { margin-bottom:30px; }
+        .nav 			{ margin-bottom:30px; }
     </style>
 
     <script src="jquery/jquery-3.3.1.min.js"></script> 	<!-- load jquery -->
@@ -66,9 +67,9 @@
     </div>
 
     <div class="container" ng-show="view=='live'" ng-cloak>
-	<div id='tempgraph'></div>
-	<div id='humgraph'></div>
-	<div id='presgraph'></div>
+	<div id="tempgraph"></div>
+	<div id="humgraph"></div>
+	<div id="presgraph"></div>
 	<script>
             var tempChart = new LineChart();
             tempChart.init({
