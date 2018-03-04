@@ -55,8 +55,20 @@ var LineChart = function () {
 				zeroline: true,
 				showline: true,
 			},
-			showlegend: true
+			showlegend: true, 
+			width: 1000
 		};
+
+		/*
+		var d3 = Plotly.d3;
+		var gd3 = d3.select(placement)
+			.append('div')
+			.attr('style', function (d) {
+				return "{ width: 80%, 'margin-left': 10%}";
+			});
+		var gd = gd3.node();
+		*/
+		//Plotly.plot(gd, graphData, layout);  
 		Plotly.plot(placement, graphData, layout);  
 	};
 
