@@ -1,3 +1,6 @@
+/*
+	Chart styles
+*/
 body {
     font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif;
 }
@@ -25,3 +28,36 @@ body {
     stroke: black;
     stroke-width: 1.5;
 }
+
+/*
+	General styles
+*/
+html { overflow-y:scroll; }
+
+body.main { padding-top:10px; }
+
+.nav { margin-bottom:30px; }
+
+.spinner {
+    border: 16px solid #ffffff;
+    border-top: 16px #0000ff;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#tempgraph #humgraph #presgraph {
+    width: 100%;
+    height: 500px;
+}
+
+.vis-hidden {
+    visibility: hidden;
+}
+
