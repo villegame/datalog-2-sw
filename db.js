@@ -13,11 +13,11 @@ init = function () {
 	});
 }
 
-query = function (query, cb) {
+query = function (query, values, cb) {
 	if (!pool) init();
 	pool.connect(function (err, client, release) {
 		if (err) return cb(err);
-		client.query(query, function (err, result) {
+		client.query(query, values, function (err, result) {
 			release();
 			if (err) {
 				console.error(err);
