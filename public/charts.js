@@ -9,8 +9,9 @@ var LineChart = function () {
 	var placement = '';	
 	var property = '';
 
-	this.init = function (options) {
+	var gd;
 
+	this.init = function (options) {
 		property = options.property;
 		placement = options.placement;
 
@@ -37,39 +38,43 @@ var LineChart = function () {
 						traceCount++;
 					}
 				});
+				var layout = {
+					title: property, 
+					xaxis: {
+						title: 'Time',
+						showgrid: true,
+						zeroline: false
+					},
+					yaxis: {
+						title: property, 
+						showgrid: true, 
+						zeroline: true,
+						showline: true,
+					},
+					showlegend: true
+				};
+
+		
+				var d3 = Plotly.d3;
+				var gd3 = d3.select('#' + placement)
+					.append('div')
+					.style({
+						width: '100%',
+						height: 450,
+					});
+				gd = gd3.node();
+		
+				Plotly.plot(gd, graphData, layout);  
+
+				window.onresize = function () {
+					Plotly.Plots.resize(gd);
+				};
+
 			
 			} catch (e) {
 				console.log("ERROR FETCHING INITIAL DATA ", e);
 			}
 		});
-		var layout = {
-			title: property, 
-			xaxis: {
-				title: 'Time',
-				showgrid: true,
-				zeroline: false
-			},
-			yaxis: {
-				title: property, 
-				showgrid: true, 
-				zeroline: true,
-				showline: true,
-			},
-			showlegend: true, 
-			width: 1000
-		};
-
-		/*
-		var d3 = Plotly.d3;
-		var gd3 = d3.select(placement)
-			.append('div')
-			.attr('style', function (d) {
-				return "{ width: 80%, 'margin-left': 10%}";
-			});
-		var gd = gd3.node();
-		*/
-		//Plotly.plot(gd, graphData, layout);  
-		Plotly.plot(placement, graphData, layout);  
 	};
 
 	socket.on('sensor-data', function (data) {
@@ -82,9 +87,12 @@ var LineChart = function () {
 						type: 'date',
 						range: [startTime, time]
 					}
-				};			
-				Plotly.relayout(placement, minuteView);
-				Plotly.extendTraces(placement, {
+				};
+
+				if (!gd) return;
+		
+				Plotly.relayout(gd, minuteView);
+				Plotly.extendTraces(gd, {
 					x: [[data.time]], 
 					y: [[data[property]]]
 				}, [trace.order]);
