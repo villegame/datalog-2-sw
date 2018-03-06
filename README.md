@@ -53,6 +53,7 @@ cd ~
 git clone https://github.com/villegame/datalog-2-sw.git  
 
 install dependencies:  
+cd datalog-2-sw
 npm install  
 
 ### Setup database
@@ -94,6 +95,5 @@ Just browse to your RPI's ip address, or if you created wlan-ap connect to the n
 ## TODO
 * Proper superuser authentication instead of current dummy.
 * Add revision identification feature for BME-280 script so that sensor can be read on all Raspberry PIs without manual modification of script.
-* Logging
 * Use bower for Web-ui dependancies
 * LCD screen compatibility
