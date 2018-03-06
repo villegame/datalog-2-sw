@@ -3,7 +3,7 @@ var async = require('async');
 
 var pool = null;
 
-init = function () {
+var init = function () {
 	pool = new pg.Pool({
 		user: 'temp_mon_user', 
 		host: 'localhost', 
@@ -13,7 +13,7 @@ init = function () {
 	});
 }
 
-query = function (query, values, cb) {
+var query = function (query, values, cb) {
 	if (!pool) init();
 	pool.connect(function (err, client, release) {
 		if (err) return cb(err);

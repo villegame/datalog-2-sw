@@ -4,7 +4,7 @@ var async = require('async');
 var readInterval  = 15000; // ms
 var scriptTimeout = 5;	   // s
 
-start = function (http, sensors, logger) {
+var start = function (http, sensors, logger) {
         io = require('socket.io')(http);
 
 	setInterval(function () {

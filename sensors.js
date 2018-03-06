@@ -42,31 +42,31 @@ var getLocalSensors = function (cb) {
         );
 };
 
-getSensorsFromDb = function (cb) {
+var getSensorsFromDb = function (cb) {
         db.query("select devices_id, devices_type, devices_name, devices_source, devices_enabled, devices_color, devices_screen, devices_screen_order from temp_mon_schema.devices order by devices_id;", [], cb);
 };
 
-addSensor = function (data, cb) {
+var addSensor = function (data, cb) {
 	db.query("insert into temp_mon_schema.devices (devices_source, devices_name, devices_type, devices_color, devices_enabled) values ($1, $2, $3, $4, $5);", [data.source, data.name, data.type, data.color, true], cb);
 };
 
-updateSensor = function (data, cb) {
+var updateSensor = function (data, cb) {
         db.query("update temp_mon_schema.devices set devices_name=$1, devices_enabled=$2, devices_color=$3 where devices_id=$4;", [data.name, data.enabled, data.color, data.id], cb);
 };
 
-deleteSensor = function (data, cb) {
+var deleteSensor = function (data, cb) {
         db.query("delete from temp_mon_schema.devices where devices_id=$1;", [data.id], cb);
 };
 
-getEnabledSensors = function (cb) {
+var getEnabledSensors = function (cb) {
         db.query("select devices_id, devices_name, devices_source, devices_type, devices_color from temp_mon_schema.devices where devices_enabled=true order by devices_id;", [], cb);
 };
 
-addValues = function (data, cb) {
+var addValues = function (data, cb) {
 	db.query("insert into temp_mon_schema.values (devices_id, values_temperature, values_humidity, values_pressure, values_time) values ($1, $2, $3, $4, $5);", [data.id, data.temperature, data.humidity, data.pressure, data.time], cb);
 };
 
-getValues = function (cb) {
+var getValues = function (cb) {
 	var valueList = [];
 	var past = new Date() - (8 * 60 * 60 * 1000);
 	
@@ -122,7 +122,7 @@ getValues = function (cb) {
 	});
 };
 
-getAllSensors = function (cb) {
+var getAllSensors = function (cb) {
         var localSensors = [];
         var storedSensors = [];
 
