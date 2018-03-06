@@ -91,3 +91,4 @@ Also it is good to point out that server.js contains express-session secret for 
 * Add revision identification feature for BME-280 script so that sensor can be read on all Raspberry PIs without manual modification of script.
 * Logging
 * Fix weird behaviour of chart graph on re-entering or refreshing page.
+* Use bower for Web-ui dependancies?
