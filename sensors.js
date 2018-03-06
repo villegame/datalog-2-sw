@@ -43,11 +43,11 @@ getSensorsFromDb = function (cb) {
 };
 
 addSensor = function (data, cb) {
-	db.query("insert into temp_mon_schema.devices (devices_source, devices_name, devices_type, devices_color, devices_enabled) values ('$1', '$2', '$3', '$4', $5);", [data.source, data.name, data.type, data.color, true], cb);
+	db.query("insert into temp_mon_schema.devices (devices_source, devices_name, devices_type, devices_color, devices_enabled) values ($1, $2, $3, $4, $5);", [data.source, data.name, data.type, data.color, true], cb);
 };
 
 updateSensor = function (data, cb) {
-        db.query("update temp_mon_schema.devices set devices_name='$1', devices_enabled=$2, devices_color='$3' where devices_id=$4;", [data.name, data.enabled, data.color, data.id], cb);
+        db.query("update temp_mon_schema.devices set devices_name=$1, devices_enabled=$2, devices_color=$3 where devices_id=$4;", [data.name, data.enabled, data.color, data.id], cb);
 };
 
 deleteSensor = function (data, cb) {
