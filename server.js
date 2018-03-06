@@ -4,8 +4,13 @@ var bodyParser = require('body-parser');
 var async = require('async');
 var methodOverride = require('method-override');
 
+var isLogged = function (req) {
+	if(!req.session || !req.session.admin) return false;
+	return true;
+};
+
 var isAdmin = function (req, res, next) {
-	if(!req.session || !req.session.admin) return next("Not authenticated!");
+	if(!isLogged(req)) return res.status(401).send({ msg: "Not authenticated!" });
 	next();
 };
 
@@ -23,26 +28,34 @@ start = function (app, http, sensors, auth) {
 	app.use(bodyParser.urlencoded({ extended: true }));
         app.use(methodOverride());
 
+	app.get('/login', function (req, res) {
+	
+		res.send({ logged: isLogged(req) });
+	});
+
 	app.post('/login', function (req, res) {
 
-		auth.checkPassword(req.body.password, function (err, res) {
-			if (!err) req.session.admin = true;
-			return req.redirect('/');
+		auth.checkPassword(req.body.password, function (err, response) {
+			if (!err && response.admin) {
+			    req.session.admin = true;
+			    return res.status(202).send();
+			}
+			return res.status(401).send({ msg: "Not authenticated!" });
 		});
 	});
 
 	app.post('/logout', function (req, res) {
 
 		req.session.destroy(function (err) {
-			if (err) console.log("Error destroying session ", err);
-			res.redirect('/');
+			if (err) return res.status(500).send({ msg: "Error destroying session." });
+			res.status(200).send({ msg: "Logged out." });
 		});
 	});
 
 	app.get('/sensors', isAdmin, function (req, res, next) {
 
 		sensors.getAllSensors(function (err, sensors) {
-			if (err) return res.status(500).send("Error getting sensors.");
+			if (err) return res.status(500).send({ msg: "Error getting sensors." });
 			res.send(sensors);
 		});
 	});
@@ -53,7 +66,7 @@ start = function (app, http, sensors, auth) {
 		  || typeof req.body.name !== 'string'
 		  || typeof req.body.source !== 'string'
                   || typeof req.body.color !== 'string') {
-			return res.status(400).send("Invalid input values.");
+			return res.status(400).send({ msg: "Invalid input values." });
 		}
 
 		sensors.addSensor({
@@ -64,7 +77,7 @@ start = function (app, http, sensors, auth) {
 		}, function (err) {
 			if (err) return res.status(400).send(err);
 			sensors.getAllSensors(function (err, sensors) {
-                                if (err) return res.status(500).send("Error getting sensors.");
+                                if (err) return res.status(500).send({ msg: "Error getting sensors." });
                                 res.send(sensors);
                         });
 		}); 
@@ -89,7 +102,7 @@ start = function (app, http, sensors, auth) {
 		}, function (err) {
 			if (err) return res.status(400).send(err);
 			sensors.getAllSensors(function (err, sensors) {
-                                if (err) return res.status(500).send("Error getting sensors.");
+                                if (err) return res.status(500).send({ msg: "Error getting sensors." });
                                 res.send(sensors);
                         });
 		});
@@ -97,7 +110,7 @@ start = function (app, http, sensors, auth) {
 	});
 
 	app.delete('/sensors/:devices_id', isAdmin, function (req, res) {
-		
+
 		if (typeof req.params.devices_id !== 'string') return res.status(400).send("Invalid input values.");
 
 		sensors.deleteSensor({
@@ -105,7 +118,7 @@ start = function (app, http, sensors, auth) {
 		}, function (err) {
 			if (err) return res.status(400).send(err);
 			sensors.getAllSensors(function (err, sensors) {
-                   		if (err) return res.status(500).send("Error getting sensors.");
+                   		if (err) return res.status(500).send({ msg: "Error getting sensors." });
                         	res.send(sensors);
 	                });
 		});
