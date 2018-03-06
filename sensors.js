@@ -2,6 +2,8 @@ var async = require('async');
 var exec = require('child_process').exec;
 var db;
 
+var scriptTimeout = 5;     // s
+
 var init = function (dataBase) {
 	db = dataBase;
 };
@@ -12,7 +14,7 @@ var getLocalSensors = function (cb) {
 
         async.series([
                 function (done) {
-                        exec('python ./scripts/1w.py', function (err, stdout, stderr) {
+                        exec('timeout ' + scriptTimeout + ' python ' + __dirname + '/scripts/1w.py', function (err, stdout, stderr) {
                                 if (err) return done(err);
                                 try {
                                         JSON.parse(stdout).sensors.forEach(function(sensor) {
@@ -25,7 +27,7 @@ var getLocalSensors = function (cb) {
                         });
                 },
                 function (done) {
-                        exec('python ./scripts/bme280.py', function (err, stdout, stderr) {
+                        exec('timeout ' + scriptTimeout + ' python ' + __dirname + '/scripts/bme280.py', function (err, stdout, stderr) {
                                 if (err) return done(err);
                                 sensors.push({type: "BME-280", source: "I2C"});
                                 done();
