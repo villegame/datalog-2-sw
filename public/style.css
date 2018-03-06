@@ -34,13 +34,21 @@ body {
 */
 html { overflow-y:scroll; }
 
-body.main { padding-top:10px; }
+body.main { 
+	/* padding-top:10px; */
+}
 
-.nav { margin-bottom:30px; }
+.loader-container { padding-top: 100px; }
+
+.nav { 
+    margin-bottom:30px; 
+    background-color: white;
+}
 
 .spinner {
-    border: 16px solid #ffffff;
-    border-top: 16px #0000ff;
+    margin: auto;
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #3498db;
     border-radius: 50%;
     width: 60px;
     height: 60px;
@@ -61,3 +69,13 @@ body.main { padding-top:10px; }
     visibility: hidden;
 }
 
+.login-form {
+    position: fixed;
+    width: 50%;
+    height: 300px; 
+    padding-top: 50px;
+    top: 100px;
+    left: 25%;
+    z-index: 999;
+    background-color: white;
+}
