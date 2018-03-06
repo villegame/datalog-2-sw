@@ -42,6 +42,7 @@ var LineChart = function () {
 					title: property, 
 					xaxis: {
 						title: 'Time',
+						type: 'date',
 						showgrid: true,
 						zeroline: false
 					},
