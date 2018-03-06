@@ -4,7 +4,7 @@
 
 Datalogger software related to a project [described here](https://villegame.wordpress.com/projects/data-monitoring/portable-temperature-and-humidity-measuring-application-project/).
 
-Designed for Raspberry PI single-board computers.
+Designed for Raspberry PI single-board computers, to read and store data from 1-wire temperature sensors and bme280 sensors. Provides also easy configuration tool and visual graphs to monitor values.
 
 This repository contains core functionalities of logger including:
 * Sensor reader scripts
