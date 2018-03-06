@@ -23,7 +23,6 @@
     "express-session": "^1.15.6",
     "method-override": "^2.3.10",
     "pg": "^7.4.1",
-    "pug": "^2.0.0-rc.4",
     "socket.io": "^2.0.4"
   }
 }
