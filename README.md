@@ -11,6 +11,9 @@ This repository contains core functionalities of logger including:
 * Server-side database client (not the database itself)
 * Web-UI with easy to use settings and graphs
 
+![Live graph](https://villegame.files.wordpress.com/2018/03/livegraph.png)
+![Configuration](https://villegame.files.wordpress.com/2018/03/config.png)
+
 ## Use
 
 Before deploying the software you need to have raspbian jessie installed on your RPI. You will also need to do the wiring with desired components (1-Wire sensors, BME-280 sensor on i2c bus).
