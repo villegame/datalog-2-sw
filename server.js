@@ -14,7 +14,7 @@ var isAdmin = function (req, res, next) {
 	next();
 };
 
-start = function (app, http, sensors, auth) {
+start = function (app, http, sensors, auth, logger) {
 
 	// index.html will be read from here, no need for app.get('/'...
 	app.use(express.static(__dirname + '/public'));
