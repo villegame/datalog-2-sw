@@ -11,8 +11,9 @@ This repository contains core functionalities of logger including:
 * Server-side database client (not the database itself)
 * Web-UI with easy to use settings and graphs
 
-![Live graph](https://villegame.files.wordpress.com/2018/03/livegraph.png)
-![Configuration](https://villegame.files.wordpress.com/2018/03/config.png)
+Screenshots:  
+[Live graph](https://villegame.files.wordpress.com/2018/03/livegraph.png)  
+[Configuration](https://villegame.files.wordpress.com/2018/03/config.png)  
 
 ## Use
 
