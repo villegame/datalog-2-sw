@@ -45,7 +45,7 @@ start = function (http, sensors) {
 					if(!isConnected) return;
 
 					if(eSensor.devices_type == '1W-TEMP') {
-						exec('timeout ' + scriptTimeout + ' python ./scripts/1w.py ' + eSensor.devices_source, function (err, stdout, stderr) {
+						exec('timeout ' + scriptTimeout + ' python ' + __dirname + '/scripts/1w.py ' + eSensor.devices_source, function (err, stdout, stderr) {
 							if (err) return console.error("Error reading 1W-TEMP sensor", err);
 							try {
 								var output = JSON.parse(stdout);
@@ -71,7 +71,7 @@ start = function (http, sensors) {
 					}
 					
 					if(eSensor.devices_type == 'BME-280') {
-						exec('timeout ' + scriptTimeout + ' python ./scripts/bme280.py', function (err, stdout, stderr) {
+						exec('timeout ' + scriptTimeout + ' python ' + __dirname + '/scripts/bme280.py', function (err, stdout, stderr) {
 							if (err) return console.error("Error reading BME-280 sensor", err);
 							try {
 								var output = JSON.parse(stdout);
