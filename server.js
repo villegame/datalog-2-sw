@@ -16,7 +16,8 @@ var isAdmin = function (req, res, next) {
 
 start = function (app, http, sensors, auth) {
 
-	app.use('/', express.static('public'));
+	// index.html will be read from here, no need for app.get('/'...
+	app.use(express.static(__dirname + '/public'));
 
 	app.use(session({
 		secret: 'basdla3RR3albabrllerelbkelk34jijtg3jng',
