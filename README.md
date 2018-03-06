@@ -31,41 +31,47 @@ sudo raspi-config
 
 ### Install necessary software
 
-sudo apt-get update
-sudo apt-get install git python-smbus i2c-tools postgresql
+sudo apt-get update  
+sudo apt-get install git python-smbus i2c-tools postgresql  
 
 ### Install node.js for raspberry
 
-cd ~
-wget https://nodejs.org/dist/v7.7.2/node-v7.7.2-linux-armv6l.tar.gz
-tar -xzf node-v7.7.2-linux-armv6l.tar.gz
-sudo cp -R node-v7.7.2-linux-armv6l/* /usr/local/
+cd ~  
+wget https://nodejs.org/dist/v7.7.2/node-v7.7.2-linux-armv6l.tar.gz  
+tar -xzf node-v7.7.2-linux-armv6l.tar.gz  
+sudo cp -R node-v7.7.2-linux-armv6l/* /usr/local/  
 
-logout typing exit
-login again
+logout typing exit  
+login again  
 
-sudo npm install -g npm
+sudo npm install -g npm  
 
 ### Clone git repo
 
-Clone the repository from git:
-cd ~
-git clone https://github.com/villegame/datalog-2-sw.git
+Clone the repository from git:  
+cd ~  
+git clone https://github.com/villegame/datalog-2-sw.git  
 
-install dependencies:
-npm install
+install dependencies:  
+npm install  
 
 ### Setup database
 
-sudo su postgres
-psql
-create database temp_mon;
-create user temp_mon_user with password 'temp_mon_password';
-grant all on database temp_mon to temp_mon_user;
-\q
+sudo su postgres  
+psql  
+create database temp_mon;  
+create user temp_mon_user with password 'temp_mon_password';  
+grant all on database temp_mon to temp_mon_user;  
+\q  
 
-psql -d temp_mon -U temp_mon_user -W -h localhost -f create.sql
-(use password assigned to run command 'temp_mon_password')
+psql -d temp_mon -U temp_mon_user -W -h localhost -f create.sql  
+(use password assigned to run command 'temp_mon_password')  
+
+### Set software to start on boot.
+
+sudo crontab -e  
+add line:  
+@reboot /usr/local/bin/node /home/pi/datalog-2-sw/app.js  
 
 ### WLAN AP (optional)
 
@@ -75,12 +81,6 @@ Instructions [here](https://elinux.org/RPI-Wireless-Hotspot). Notice that step 4
 ### System on-led and poweroff button (optional)
 
 It is also quite practical to have a poweroff button for RPI simply because no one wants to shut the device down every time thru console. System on-led is included with the poweroff button in [this blog post](https://villegame.wordpress.com/2016/12/05/portable-temp-humidity-reader-part-ii/).
-
-### Set software to start on boot.
-
-sudo crontab -e
-add line:
-@reboot /usr/local/bin/node /home/pi/datalog-2-sw/app.js
 
 ### Finished
 
