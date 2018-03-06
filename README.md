@@ -83,8 +83,9 @@ add line:
 Just browse to your RPI's ip address, or if you created wlan-ap connect to the network and direct your browser to the gateway.
 
 **NOTE!**
-So far the hardcoded password for configuration is 'password'.
-Also it is good to point out that server.js contains express-session secret for sessions, which should also be changed.
+* So far the hardcoded password for configuration is 'password'.
+* Also it is good to point out that server.js contains express-session secret for sessions, which should also be changed.
+* So far depending on your RPI revision you might need to change SMBus from 0 to 1 in /scripts/bme280.py on line 30.
 
 ## TODO
 * Proper superuser authentication instead of current dummy.
