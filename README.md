@@ -67,10 +67,14 @@ grant all on database temp_mon to temp_mon_user;
 psql -d temp_mon -U temp_mon_user -W -h localhost -f create.sql
 (use password assigned to run command 'temp_mon_password')
 
-### WLAN AP
+### WLAN AP (optional)
 
 The whole device works nicely if you attach wi-fi adapter to it and set it to work as an access point. This way you can access the web-ui wirelessly connecting to the wifi and browsing to the gateway address.
 Instructions [here](https://elinux.org/RPI-Wireless-Hotspot). Notice that step 4 is unnecessary in this case, because we do not use the device to share the internet connection.
+
+### System on-led and poweroff button (optional)
+
+It is also quite practical to have a poweroff button for RPI simply because no one wants to shut the device down every time thru console. System on-led is included with the poweroff button in [this blog post](https://villegame.wordpress.com/2016/12/05/portable-temp-humidity-reader-part-ii/).
 
 ### Set software to start on boot.
 
@@ -91,5 +95,5 @@ Just browse to your RPI's ip address, or if you created wlan-ap connect to the n
 * Proper superuser authentication instead of current dummy.
 * Add revision identification feature for BME-280 script so that sensor can be read on all Raspberry PIs without manual modification of script.
 * Logging
-* Fix weird behaviour of chart graph on re-entering or refreshing page.
-* Use bower for Web-ui dependancies?
+* Use bower for Web-ui dependancies
+* LCD screen compatibility
