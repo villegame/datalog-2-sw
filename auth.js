@@ -1,7 +1,9 @@
 var db;
+var logger;
 
-var init = function (dataBase) {
+var init = function (dataBase, log) {
         db = dataBase;
+	logger = log;
 };
 
 // TODO: A real password crypting etc

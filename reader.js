@@ -4,8 +4,7 @@ var async = require('async');
 var readInterval  = 15000; // ms
 var scriptTimeout = 5;	   // s
 
-start = function (http, sensors) {
-
+start = function (http, sensors, logger) {
         io = require('socket.io')(http);
 
 	setInterval(function () {
@@ -30,7 +29,10 @@ start = function (http, sensors) {
 			}],
 			function (err) {
 
-				if (err) return console.error("Error getting sensors", err);
+				if (err) {
+					logger.log({ msg: "Error getting, sensors.", err: err });
+					return;
+				}
 
 				// timestamp in milliseconds
 				var timestamp = Math.floor(Date.now());
@@ -46,7 +48,10 @@ start = function (http, sensors) {
 
 					if(eSensor.devices_type == '1W-TEMP') {
 						exec('timeout ' + scriptTimeout + ' python ' + __dirname + '/scripts/1w.py ' + eSensor.devices_source, function (err, stdout, stderr) {
-							if (err) return console.error("Error reading 1W-TEMP sensor", err);
+							if (err) {
+								logger.log({ msg: "Error reading 1W-TEMP sensor.", err: err });
+								return;
+							}
 							try {
 								var output = JSON.parse(stdout);
 								io.emit('sensor-data', { 
@@ -62,17 +67,20 @@ start = function (http, sensors) {
 									pressure: null,
 									time: timestamp
 								}, function (err, res) {
-									if (err) console.error("ERROR ADDING 1W-TEMP DATA", err);
+									if (err) logger.log({ msg: "Error adding 1W-TEMP data.", err: err });
 								});
 							} catch (err) {
-								console.error("Error parsing 1W-TEMP sensor data", err);
+								logger.log({ msg: "Error parsing 1W-TEMP sensor data.", err: err });
 							}
 						});
 					}
 					
 					if(eSensor.devices_type == 'BME-280') {
 						exec('timeout ' + scriptTimeout + ' python ' + __dirname + '/scripts/bme280.py', function (err, stdout, stderr) {
-							if (err) return console.error("Error reading BME-280 sensor", err);
+							if (err) {
+								logger.log({ msg: "Error reading BME-280 sensor.", err: err });
+								return;
+							}
 							try {
 								var output = JSON.parse(stdout);
                                                                 io.emit('sensor-data', {
@@ -90,10 +98,10 @@ start = function (http, sensors) {
                                                                         pressure: output.pressure, 
 									time: timestamp
                                                                 }, function (err, res) {
-									if (err) console.error("ERROR ADDING BME-280 DATA", err);
+									if (err) logger.log({ msg: "Error adding BME-280 data.", err: err });
 								});
 							} catch (err) {
-								console.error("Error parsing BME-280 sensor data", err);
+								logger.log({ msg: "Error parsing BME-280 sensor data.", err: err });
 							}
 						});
 					}
