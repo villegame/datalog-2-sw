@@ -32,11 +32,36 @@ sudo raspi-config
 * Advanced options
   * Enable i2c
   * Enable 1-wire
+  * Enable ssh (if you want to connect over network to do the rest)
 
 ### Install necessary software
 
 sudo apt-get update  
 sudo apt-get install git python-smbus i2c-tools postgresql  
+
+Check that your postgre install was succesfull by typing:  
+sudo su postgres  
+psql  
+
+It should open psql client, in this case everything is fine, exit by typing:  
+\q  
+exit  
+
+If you get perl warnings and error, run:  
+exit  
+
+and fix locale issue by setting locales to en_US.UTF-8 (in this case):  
+
+export LANGUAGE=en_US.UTF-8  
+export LANG=en_US.UTF-8  
+export LC_ALL=en_US.UTF-8  
+sudo locale-gen en_US.UTF-8  
+sudo dpkg-reconfigure locales  
+
+after this finish postgre install by:  
+sudo pg_createcluster 9.4 main --start  
+(this command was suggested by installer if it failed, so check version number there)
+
 
 ### Install node.js for raspberry
 
@@ -44,10 +69,8 @@ cd ~
 wget https://nodejs.org/dist/v7.7.2/node-v7.7.2-linux-armv6l.tar.gz  
 tar -xzf node-v7.7.2-linux-armv6l.tar.gz  
 sudo cp -R node-v7.7.2-linux-armv6l/* /usr/local/  
-
-logout typing exit  
-login again  
-
+rm node-v7.7.2-linux-armv6l.tar.gz  
+rm -r node-v7.7.2-linux-armv6l  
 sudo npm install -g npm  
 
 ### Clone git repo
@@ -57,7 +80,7 @@ cd ~
 git clone https://github.com/villegame/datalog-2-sw.git  
 
 install dependencies:  
-cd datalog-2-sw
+cd datalog-2-sw  
 npm install  
 
 ### Setup database
@@ -71,6 +94,8 @@ grant all on database temp_mon to temp_mon_user;
 
 psql -d temp_mon -U temp_mon_user -W -h localhost -f create.sql  
 (use password assigned to run command 'temp_mon_password')  
+finally logout as postgre by typing:  
+exit  
 
 ### Set software to start on boot.
 
@@ -81,7 +106,9 @@ add line:
 ### WLAN AP (optional)
 
 The whole device works nicely if you attach wi-fi adapter to it and set it to work as an access point. This way you can access the web-ui wirelessly connecting to the wifi and browsing to the gateway address.
-Instructions [here](https://elinux.org/RPI-Wireless-Hotspot). Notice that step 4 is unnecessary in this case, because we do not use the device to share the internet connection.
+Instructions [here](https://elinux.org/RPI-Wireless-Hotspot). 
+
+There might still be problems with connecting via wlan...
 
 ### System on-led and poweroff button (optional)
 
@@ -97,7 +124,9 @@ Just browse to your RPI's ip address, or if you created wlan-ap connect to the n
 * So far depending on your RPI revision you might need to change SMBus from 0 to 1 in /scripts/bme280.py on line 30.
 
 ## TODO
-* Proper superuser authentication instead of current dummy.
-* Add revision identification feature for BME-280 script so that sensor can be read on all Raspberry PIs without manual modification of script.
+* Connecting to webui via wlan
+* Update reader scripts not to cause errors into logs if sensors arent connected
+* Proper superuser authentication instead of current dummy
+* Add revision identification feature for BME-280 script so that sensor can be read on all Raspberry PIs without manual modification of script
 * Use bower for Web-ui dependancies
 * LCD screen compatibility
