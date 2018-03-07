@@ -127,3 +127,4 @@ Just browse to your RPI's ip address, or if you created wlan-ap connect to the n
 * Add revision identification feature for BME-280 script so that sensor can be read on all Raspberry PIs without manual modification of script
 * Use bower for Web-ui dependancies
 * LCD screen compatibility
+* Backend log display tool for ui?
