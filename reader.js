@@ -1,10 +1,77 @@
 var exec = require('child_process').exec;
 var async = require('async');
 
+var io;
+var logger;
+
 var readInterval  = 15000; // ms
 var scriptTimeout = 5;	   // s
 
-var start = function (http, sensors, logger) {
+// Reader for one-wire sensors
+var readOneWire = function (sensors, eSensor, timestamp) {
+	exec('timeout ' + scriptTimeout + ' python ' + __dirname + '/scripts/1w.py ' + eSensor.devices_source, function (err, stdout, stderr) {
+        	if (err) {
+                	logger.log({ msg: "Error reading 1W-TEMP sensor.", err: err });
+                        return;
+                }
+                try {
+                        var output = JSON.parse(stdout);
+                        io.emit('sensor-data', {
+                        	id: eSensor.devices_id,
+                                sensor: eSensor.type,
+                                temperature: output.temperature,
+                                time: timestamp
+                        });
+                        sensors.addValues({
+                                id: eSensor.devices_id,
+                                temperature: output.temperature,
+                                humidity: null,
+                                pressure: null,
+                                time: timestamp
+                        }, function (err, res) {
+                                if (err) logger.log({ msg: "Error adding 1W-TEMP data.", err: err });
+                        });
+                } catch (err) {
+                        logger.log({ msg: "Error parsing 1W-TEMP sensor data.", err: err });
+                }
+	});
+};
+
+// Reader for bme sensor
+var readBme = function (sensors, eSensor, timestamp) {
+	exec('timeout ' + scriptTimeout + ' python ' + __dirname + '/scripts/bme280.py', function (err, stdout, stderr) {
+        	if (err) {
+                	logger.log({ msg: "Error reading BME-280 sensor.", err: err });
+                        return;
+                }
+                try {
+                	var output = JSON.parse(stdout);
+                        io.emit('sensor-data', {
+                        	id: eSensor.devices_id,
+                                sensor: eSensor.type,
+                                temperature: output.temperature,
+                                pressure: output.pressure,
+                                humidity: output.humidity,
+                                time: timestamp
+                        });
+                        sensors.addValues({
+                        	id: eSensor.devices_id,
+                                temperature: output.temperature,
+                                humidity: output.humidity,
+                                pressure: output.pressure,
+                                time: timestamp
+                        }, function (err, res) {
+                                if (err) logger.log({ msg: "Error adding BME-280 data.", err: err });
+                        });
+                } catch (err) {
+                	logger.log({ msg: "Error parsing BME-280 sensor data.", err: err });
+                }
+	});
+
+};
+
+var start = function (http, sensors, log) {
+	logger = log;
         io = require('socket.io')(http);
 
 	setInterval(function () {
@@ -14,6 +81,7 @@ var start = function (http, sensors, logger) {
 
 		async.series([
 			function (done) {
+				// Get list of enabled sensors in database
 				sensors.getEnabledSensors(function (err, results) {
 					if (err) return done(err);
 					enabledSensors = results;
@@ -21,6 +89,7 @@ var start = function (http, sensors, logger) {
 				});
 			},
 			function (done) {
+				// Get list of local (connected) sensors
 				sensors.getLocalSensors(function (err, results) {
 					if (err) return done(err);
 					localSensors = results;
@@ -46,65 +115,9 @@ var start = function (http, sensors, logger) {
 					});
 					if(!isConnected) return;
 
-					if(eSensor.devices_type == '1W-TEMP') {
-						exec('timeout ' + scriptTimeout + ' python ' + __dirname + '/scripts/1w.py ' + eSensor.devices_source, function (err, stdout, stderr) {
-							if (err) {
-								logger.log({ msg: "Error reading 1W-TEMP sensor.", err: err });
-								return;
-							}
-							try {
-								var output = JSON.parse(stdout);
-								io.emit('sensor-data', { 
-									id: eSensor.devices_id, 
-									sensor: eSensor.type, 
-									temperature: output.temperature,
-									time: timestamp
-								});
-								sensors.addValues({
-									id: eSensor.devices_id, 
-									temperature: output.temperature,
-									humidity: null,
-									pressure: null,
-									time: timestamp
-								}, function (err, res) {
-									if (err) logger.log({ msg: "Error adding 1W-TEMP data.", err: err });
-								});
-							} catch (err) {
-								logger.log({ msg: "Error parsing 1W-TEMP sensor data.", err: err });
-							}
-						});
-					}
-					
-					if(eSensor.devices_type == 'BME-280') {
-						exec('timeout ' + scriptTimeout + ' python ' + __dirname + '/scripts/bme280.py', function (err, stdout, stderr) {
-							if (err) {
-								logger.log({ msg: "Error reading BME-280 sensor.", err: err });
-								return;
-							}
-							try {
-								var output = JSON.parse(stdout);
-                                                                io.emit('sensor-data', {
-									id: eSensor.devices_id, 
-                                                                        sensor: eSensor.type,
-                                                                        temperature: output.temperature,
-									pressure: output.pressure,
-									humidity: output.humidity,
-									time: timestamp
-                                                                });
-                                                                sensors.addValues({
-                                                                        id: eSensor.devices_id,
-                                                                        temperature: output.temperature,
-                                                                        humidity: output.humidity,
-                                                                        pressure: output.pressure, 
-									time: timestamp
-                                                                }, function (err, res) {
-									if (err) logger.log({ msg: "Error adding BME-280 data.", err: err });
-								});
-							} catch (err) {
-								logger.log({ msg: "Error parsing BME-280 sensor data.", err: err });
-							}
-						});
-					}
+					if(eSensor.devices_type == '1W-TEMP') readOneWire(sensors, eSensor, timestamp);
+										
+					if(eSensor.devices_type == 'BME-280') readBme(sensors, eSensor, timestamp);
 
 				});
 			}
