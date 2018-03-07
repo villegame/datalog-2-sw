@@ -31,7 +31,7 @@ var getLocalSensors = function (cb) {
                 },
                 function (done) {
                         exec('timeout ' + scriptTimeout + ' python ' + __dirname + '/scripts/bme280.py', function (err, stdout, stderr) {
-                                if (err) return done(err);
+                                if (err) return done();
                                 sensors.push({type: "BME-280", source: "I2C"});
                                 done();
                         });
