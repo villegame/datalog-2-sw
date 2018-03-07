@@ -105,12 +105,14 @@ add line:
 
 ### WLAN AP (optional)
 
+This is not yet fully tested...
+
 The whole device works nicely if you attach wi-fi adapter to it and set it to work as an access point. This way you can access the web-ui wirelessly connecting to the wifi and browsing to the gateway address.
 Instructions [here](https://elinux.org/RPI-Wireless-Hotspot). 
 
-There might still be problems with connecting via wlan...
-
 ### System on-led and poweroff button (optional)
+
+This is not yet fully tested...
 
 It is also quite practical to have a poweroff button for RPI simply because no one wants to shut the device down every time thru console. System on-led is included with the poweroff button in [this blog post](https://villegame.wordpress.com/2016/12/05/portable-temp-humidity-reader-part-ii/).
 
@@ -125,6 +127,7 @@ Just browse to your RPI's ip address, or if you created wlan-ap connect to the n
 
 ## TODO
 * Connecting to webui via wlan
+* Poweroff button
 * Update reader scripts not to cause errors into logs if sensors arent connected
 * Proper superuser authentication instead of current dummy
 * Add revision identification feature for BME-280 script so that sensor can be read on all Raspberry PIs without manual modification of script
