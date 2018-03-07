@@ -13,6 +13,7 @@ var init = function () {
 		}]});
 };
 
+// Function for error messages only...
 var log = function (message) {
 	logger.error(message);
 };

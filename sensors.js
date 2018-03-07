@@ -10,6 +10,7 @@ var init = function (dataBase, log) {
 	logger = log;
 };
 
+// Run scripts to list all connected sensors
 var getLocalSensors = function (cb) {
 
         var sensors = [];
@@ -42,6 +43,8 @@ var getLocalSensors = function (cb) {
         );
 };
 
+// Database functions:
+
 var getSensorsFromDb = function (cb) {
         db.query("select devices_id, devices_type, devices_name, devices_source, devices_enabled, devices_color, devices_screen, devices_screen_order from temp_mon_schema.devices order by devices_id;", [], cb);
 };
@@ -66,10 +69,10 @@ var addValues = function (data, cb) {
 	db.query("insert into temp_mon_schema.values (devices_id, values_temperature, values_humidity, values_pressure, values_time) values ($1, $2, $3, $4, $5);", [data.id, data.temperature, data.humidity, data.pressure, data.time], cb);
 };
 
+// Get values for live chart
 var getValues = function (cb) {
 	var valueList = [];
 	var past = new Date() - (8 * 60 * 60 * 1000);
-	
 
 	async.series([
 		function (done) {
@@ -122,6 +125,7 @@ var getValues = function (cb) {
 	});
 };
 
+// List all sensors (locally connected and from database) for configuration tool
 var getAllSensors = function (cb) {
         var localSensors = [];
         var storedSensors = [];
@@ -172,13 +176,11 @@ var getAllSensors = function (cb) {
 			});
                 }
         );
-
 };
 
 module.exports = {
 	init: init, 
 	getLocalSensors: getLocalSensors,
-//	getSensorsFromDb: getSensorsFromDb,
 	addSensor: addSensor, 
     	updateSensor: updateSensor,
         deleteSensor: deleteSensor,

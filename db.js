@@ -3,6 +3,7 @@ var async = require('async');
 
 var pool = null;
 
+// TODO: these can be put in some other file containing credentials?
 var init = function () {
 	pool = new pg.Pool({
 		user: 'temp_mon_user', 
