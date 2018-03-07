@@ -26,7 +26,7 @@ To deploy, follow these steps:
 Start configuration tool on terminal:
 
 sudo raspi-config
-* Internationalisation Options: Set locales (I used C.UTF-8, I found that using some other locales made postgre install fail)
+* Internationalisation Options: Set locales (I used en_US.UTF-8).
   * It is also useful to set the rest of options in this category.
 * Expand filesystem
 * Advanced options
@@ -37,7 +37,7 @@ sudo raspi-config
 ### Install necessary software
 
 sudo apt-get update  
-sudo apt-get install git python-smbus i2c-tools postgresql  
+sudo apt-get install git python-smbus i2c-tools postgresql -y
 
 Check that your postgre install was succesfull by typing:  
 sudo su postgres  
@@ -47,7 +47,7 @@ It should open psql client, in this case everything is fine, exit by typing:
 \q  
 exit  
 
-If you get perl warnings and error, run:  
+If you get perl warnings and error, exit by:  
 exit  
 
 and fix locale issue by setting locales to en_US.UTF-8 (in this case):  
@@ -101,7 +101,7 @@ exit
 
 sudo crontab -e  
 add line:  
-@reboot /usr/local/bin/node /home/pi/datalog-2-sw/app.js  
+@reboot /usr/local/bin/node /home/pi/datalog-2-sw/app.js &  
 
 ### WLAN AP (optional)
 
