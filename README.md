@@ -19,6 +19,26 @@ Screenshots:
 
 Before deploying the software you need to have raspbian jessie installed on your RPI. You will also need to do the wiring with desired components (1-Wire sensors, BME-280 sensor on i2c bus).
 
+BME-280 module connects to RPI pins as following:  
+
+| BME-Module | RPI     |
+| ---------- | ------- |
+| VCC        | 3.3V    |
+| GND        | GND     |
+| SCL        | I2C-SCL |
+| SDA        | I2C-SDA |  
+
+1-Wire DS1820 sensors connects as following: 
+
+| DS1820 | RPI  |
+| ------ | ---- |
+| V      | 3.3V |
+| D      | IO4  |
+| GND    | GND  |
+
+*NOTE!* you need to add 4,7kOhm resistor between Voltage and Data pins as illustrated [in here](https://villegame.files.wordpress.com/2018/03/1w.png).  
+You can add several DS1820 sensors parallel to the setup.  
+
 To deploy, follow these steps:
 
 ### Raspbian OS
