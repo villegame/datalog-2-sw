@@ -76,7 +76,7 @@ sudo locale-gen en_US.UTF-8
 sudo dpkg-reconfigure locales  
 ```
 
-after this finish postgre install by:  
+after this finish the fix by:  
 
 ```
 sudo pg_createcluster 9.4 main --start  
