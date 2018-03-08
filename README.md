@@ -36,7 +36,7 @@ BME-280 module connects to RPI pins as following:
 | D      | IO4  |
 | GND    | GND  |
 
-*NOTE!* you need to add 4,7kOhm resistor between Voltage and Data pins as illustrated [in here](https://villegame.files.wordpress.com/2018/03/1w.png).  
+**NOTE!** you need to add 4,7kOhm resistor between Voltage and Data pins as illustrated [in here](https://villegame.files.wordpress.com/2018/03/1w.png).  
 You can add several DS1820 sensors parallel to the setup.  
 
 To deploy, follow these steps:
