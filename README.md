@@ -21,12 +21,17 @@ Before deploying the software you need to have raspbian jessie installed on your
 
 To deploy, follow these steps:
 
+### Raspbian OS
+
+I have tested this on Raspbian Jessie OS. Other Raspbian OSes may or may not work. 
+
 ### Raspi-config 
 
 Start configuration tool on terminal:
 
 sudo raspi-config
 * Internationalisation Options: Set locales (I used en_US.UTF-8).
+  * In general if you see any python locale warnings including locale names, you should install all locales mentioned in warning.
   * It is also useful to set the rest of options in this category.
 * Expand filesystem
 * Advanced options
@@ -36,35 +41,53 @@ sudo raspi-config
 
 ### Install necessary software
 
+```
 sudo apt-get update  
 sudo apt-get install git python-smbus i2c-tools postgresql -y
+```
 
 Check that your postgre install was succesfull by typing:  
+
+```
 sudo su postgres  
 psql  
+```
 
 It should open psql client, in this case everything is fine, exit by typing:  
+
+```
 \q  
 exit  
+```
 
 If you get perl warnings and error, exit by:  
+
+```
 exit  
+```
 
 and fix locale issue by setting locales to en_US.UTF-8 (in this case):  
 
+```
 export LANGUAGE=en_US.UTF-8  
 export LANG=en_US.UTF-8  
 export LC_ALL=en_US.UTF-8  
 sudo locale-gen en_US.UTF-8  
 sudo dpkg-reconfigure locales  
+```
 
 after this finish postgre install by:  
+
+```
 sudo pg_createcluster 9.4 main --start  
+```
+
 (this command was suggested by installer if it failed, so check version number there)
 
 
 ### Install node.js for raspberry
 
+```
 cd ~  
 wget https://nodejs.org/dist/v7.7.2/node-v7.7.2-linux-armv6l.tar.gz  
 tar -xzf node-v7.7.2-linux-armv6l.tar.gz  
@@ -72,36 +95,61 @@ sudo cp -R node-v7.7.2-linux-armv6l/* /usr/local/
 rm node-v7.7.2-linux-armv6l.tar.gz  
 rm -r node-v7.7.2-linux-armv6l  
 sudo npm install -g npm  
+```
 
 ### Clone git repo
 
 Clone the repository from git:  
+
+```
 cd ~  
 git clone https://github.com/villegame/datalog-2-sw.git  
+```
 
 install dependencies:  
+
+```
 cd datalog-2-sw  
 npm install  
+```
 
 ### Setup database
 
+```
+cd ~/datalog-2-sw
 sudo su postgres  
 psql  
 create database temp_mon;  
 create user temp_mon_user with password 'temp_mon_password';  
 grant all on database temp_mon to temp_mon_user;  
 \q  
+```
 
+now run database create script as freshly created user:
+
+```
 psql -d temp_mon -U temp_mon_user -W -h localhost -f create.sql  
-(use password assigned to run command 'temp_mon_password')  
+```
+
+(use password assigned earlier 'temp_mon_password')  
 finally logout as postgre by typing:  
+
+```
 exit  
+```
+
 
 ### Set software to start on boot.
 
+```
 sudo crontab -e  
+```
+
 add line:  
+
+```
 @reboot /usr/local/bin/node /home/pi/datalog-2-sw/app.js &  
+```
 
 ### WLAN AP (optional)
 
