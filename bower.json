@@ -1,0 +1,13 @@
+{
+  "name": "datalog-2-sw",
+  "description": "Scripts for datalogger reading 1-wire temperature sensors and bme 280 sensor.",
+  "main": "app.js",
+  "license": "ISC",
+  "homepage": "https://github.com/villegame/datalog-2-sw",
+  "dependencies": {
+    "bootstrap": "4.0.0",
+    "plotlyjs": "plotly#1.18.1",
+    "angular": "1.6.9",
+    "jquery": "3.3.1"
+  }
+}
