@@ -192,7 +192,7 @@ Just browse to your RPI's ip address, or if you created wlan-ap connect to the n
 ## TODO
 * Proper superuser authentication instead of current dummy
 * Add revision identification feature for BME-280 script so that sensor can be read on all Raspberry PIs without manual modification of script
-* Use bower for Web-ui dependancies
+* Package manager and or bundler for Web-ui dependancies
 * LCD screen support  
 * Config panel
   * Backend log display tool for ui?
