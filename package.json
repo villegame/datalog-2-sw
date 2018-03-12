@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "css-loader": "^0.28.10",
+    "ify-loader": "^1.1.0",
     "style-loader": "^0.20.3",
     "webpack": "^4.1.1",
     "webpack-cli": "^2.0.11"
