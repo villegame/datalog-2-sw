@@ -1,105 +1,94 @@
-var socket = io();
-
-var LineChart = function () {
+var LineChart = function (options) {
 
 	var graphData = [];
 	var traceOrders = [];
 	var traceCount = 0;
 
-	var placement = '';	
-	var property = '';
-
 	var gd;
 
-	this.init = function (options) {
-		property = options.property;
-		placement = options.placement;
+	window.socket.on('sensor-data', function (data) {
+       		traceOrders.forEach(function(trace) {
+                        if(trace.id == data.id && data.hasOwnProperty(options.property)) {
+                       	        var time = data.time;
+               	                var startTime = time - (30*60*1000);
+       	                        var minuteView = {
+                                        xaxis : {
+                                       	        type: 'date',
+                               	                range: [startTime, time]
+                       	                }
+               	                };
 
-		$.get('/values', function (data) {
-			try {
-				var initData = JSON.parse(data);
-				initData.forEach(function(item) {
-					
-					if(item.hasOwnProperty(property)) {
+       	                        if (!this.gd) return;
+	
+               	                Plotly.relayout(this.gd, minuteView);
+       	                        Plotly.extendTraces(gd, {
+                                        x: [[data.time]],
+                               	        y: [[data[options.property]]]
+                       	        }, [trace.order]);
+               	        }
+       	        });
+        });
 
-						graphData.push({
-							x : item.time,
-							y : item[property],
-							mode: 'lines',
-							name: item.name,
-							line: {color: item.color}
-						});
+	$.get('/values', function (data) {
+		try {
+			var initData = JSON.parse(data);
+		} catch (e) {
+			console.log("ERROR FETCHING INITIAL DATA ", e);
+		}
 
-						traceOrders.push({
-							id : item.id,
-							order : traceCount
-						});
+		initData.forEach(function(item) {
+				
+			if(item.hasOwnProperty(options.property)) {
 
-						traceCount++;
-					}
+				graphData.push({
+					x : item.time,
+					y : item[options.property],
+					mode: 'lines',
+					name: item.name,
+					line: {color: item.color}
 				});
-				var layout = {
-					title: property, 
-					xaxis: {
-						title: 'Time',
-						type: 'date',
-						showgrid: true,
-						zeroline: false
-					},
-					yaxis: {
-						title: property, 
-						showgrid: true, 
-						zeroline: true,
-						showline: true,
-					},
-					showlegend: true
-				};
 
-		
-				var d3 = Plotly.d3;
-				var gd3 = d3.select('#' + placement)
-					.append('div')
-					.style({
-						width: '100%',
-						height: 450,
-					});
-				gd = gd3.node();
-		
-				Plotly.plot(gd, graphData, layout);  
+				traceOrders.push({
+					id : item.id,
+					order : traceCount
+				});
 
-				window.onresize = function () {
-					Plotly.Plots.resize(gd);
-				};
-
-			
-			} catch (e) {
-				console.log("ERROR FETCHING INITIAL DATA ", e);
+				traceCount++;
 			}
 		});
-	};
 
-	socket.on('sensor-data', function (data) {
-		traceOrders.forEach(function(trace) {
-			if(trace.id == data.id && data.hasOwnProperty(property)) {
-				var time = data.time;
-				var startTime = time - (30*60*1000);
-				var minuteView = {
-					xaxis : {
-						type: 'date',
-						range: [startTime, time]
-					}
-				};
-
-				if (!gd) return;
+		var layout = {
+			title: options.property, 
+			xaxis: {
+				title: 'Time',
+				type: 'date',
+				showgrid: true,
+				zeroline: false
+			},
+			yaxis: {
+				title: options.property, 
+				showgrid: true, 
+				zeroline: true,
+				showline: true,
+			},
+			showlegend: true
+		};
 		
-				Plotly.relayout(gd, minuteView);
-				Plotly.extendTraces(gd, {
-					x: [[data.time]], 
-					y: [[data[property]]]
-				}, [trace.order]);
-			}
-		});
+		var d3 = Plotly.d3;
+		var gd3 = d3.select('#' + options.placement)
+			.append('div')
+			.style({
+				width: '100%',
+				height: 450,
+			});
+		gd = gd3.node();
+
+		Plotly.plot(gd, graphData, layout);  
+		window.onresize = function () {
+			Plotly.Plots.resize(gd);
+		};
+
 	});
-
 };
 
+module.exports.LineChart = LineChart;

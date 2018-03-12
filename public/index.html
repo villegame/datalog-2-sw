@@ -7,15 +7,8 @@
 
     <title>Sensor monitor</title>
 
-    <link rel="stylesheet" href="bootstrap/bootstrap.min.css">  <!-- load bootstrap -->
-    <link rel="stylesheet" href="style.css"> 			<!-- chart styles -->
-     
-    <script src="jquery/jquery-3.3.1.min.js"></script> 	<!-- load jquery -->
-    <script src="angular/angular.min.js"></script> 	<!-- load angular -->
-    <script src="core.js"></script> 			<!-- load controller -->
-    <script src="/socket.io/socket.io.js"></script> 	<!-- load socket -->
     <script src="plotly/plotly-latest.min.js"></script> <!-- load plotly -->
-    <script src="charts.js"></script> 			<!-- load charts -->
+    <script src="bundle.js"></script>
 
 </head>
 
@@ -149,20 +142,17 @@
 	<div id="presgraph"></div>
 	<script>
 
-            var tempChart = new LineChart();
-            tempChart.init({
-                placement: 'tempgraph',
+            var tempChart = new Charts.LineChart({
+		placement: 'tempgraph',
                 property: 'temperature'
-            });
+	    });
 
-            var humChart = new LineChart();
-            humChart.init({
+            var humChart = new Charts.LineChart({
                 placement: 'humgraph',
                 property: 'humidity'
             });
 
-            var presChart = new LineChart();
-            presChart.init({
+            var presChart = new Charts.LineChart({
                 placement: 'presgraph',
                 property: 'pressure'
             });

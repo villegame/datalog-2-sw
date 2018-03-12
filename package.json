@@ -4,7 +4,8 @@
   "description": "Scripts for datalogger reading 1-wire temperature sensors and bme 280 sensor.",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "webpack": "webpack"
   },
   "repository": {
     "type": "git",
@@ -17,13 +18,23 @@
   },
   "homepage": "https://github.com/villegame/datalog-2-sw#readme",
   "dependencies": {
+    "angular": "^1.6.9",
     "async": "^2.6.0",
     "body-parser": "^1.18.2",
+    "bootstrap": "^4.0.0",
     "bunyan": "^1.8.12",
     "express": "^4.16.2",
     "express-session": "^1.15.6",
+    "jquery": "^3.3.1",
     "method-override": "^2.3.10",
     "pg": "^7.4.1",
+    "plotly.js": "^1.35.2",
     "socket.io": "^2.0.4"
+  },
+  "devDependencies": {
+    "css-loader": "^0.28.10",
+    "style-loader": "^0.20.3",
+    "webpack": "^4.1.1",
+    "webpack-cli": "^2.0.11"
   }
 }
