@@ -18,9 +18,9 @@ var LineChart = function (options) {
                        	                }
                	                };
 
-       	                        if (!this.gd) return;
+       	                        if (!gd) return;
 	
-               	                Plotly.relayout(this.gd, minuteView);
+               	                Plotly.relayout(gd, minuteView);
        	                        Plotly.extendTraces(gd, {
                                         x: [[data.time]],
                                	        y: [[data[options.property]]]
