@@ -1,212 +1,212 @@
 <!doctype html>
 
 <html ng-app="datalogUi">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Optimize mobile viewport -->
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Optimize mobile viewport -->
 
-    <title>Sensor monitor</title>
+        <title>Sensor monitor</title>
 
-    <link rel="stylesheet" href="bootstrap/bootstrap.min.css">  <!-- load bootstrap -->
-    <link rel="stylesheet" href="style.css"> 			<!-- chart styles -->
-     
-    <script src="jquery/jquery-3.3.1.min.js"></script> 	<!-- load jquery -->
-    <script src="angular/angular.min.js"></script> 	<!-- load angular -->
-    <script src="core.js"></script> 			<!-- load controller -->
-    <script src="/socket.io/socket.io.js"></script> 	<!-- load socket -->
-    <script src="plotly/plotly-latest.min.js"></script> <!-- load plotly -->
-    <script src="charts.js"></script> 			<!-- load charts -->
+        <link rel="stylesheet" href="bootstrap/bootstrap.min.css">  <!-- load bootstrap -->
+        <link rel="stylesheet" href="style.css">            <!-- chart styles -->
 
-</head>
+        <script src="jquery/jquery-3.3.1.min.js"></script>  <!-- load jquery -->
+        <script src="angular/angular.min.js"></script>  <!-- load angular -->
+        <script src="core.js"></script>             <!-- load controller -->
+        <script src="/socket.io/socket.io.js"></script>     <!-- load socket -->
+        <script src="plotly/plotly-latest.min.js"></script> <!-- load plotly -->
+        <script src="charts.js"></script>           <!-- load charts -->
 
-<body class="main" ng-controller="mainController">
+    </head>
 
-    <ul class="nav nav-pills nav-fill sticky-top">
-        <li class="nav-item" ng-show="loginData.logged">
-            <a class="nav-link" href ng-click="logout()">Logout</a>
-	</li>
-        <li class="nav-item">
-	    <a class="nav-link {{view=='config'?'active':''}}" href ng-click="changeView('config')">Configure</a>
-	</li>
-        <li class="nav-item">
-	    <a class="nav-link {{view=='live'?'active':''}}" href ng-click="changeView('live')">LIVE!</a>
-	</li>
-    </ul>
+    <body class="main" ng-controller="mainController">
 
-    <div class="container" ng-show="view=='config'" ng-cloak>
+        <ul class="nav nav-pills nav-fill sticky-top">
+            <li class="nav-item" ng-show="loginData.logged">
+                <a class="nav-link" href ng-click="logout()">Logout</a>
+            </li>
+                <li class="nav-item">
+                <a class="nav-link {{view=='config'?'active':''}}" href ng-click="changeView('config')">Configure</a>
+            </li>
+                <li class="nav-item">
+                <a class="nav-link {{view=='live'?'active':''}}" href ng-click="changeView('live')">LIVE!</a>
+            </li>
+        </ul>
 
-	<div class="login-form text-center" ng-show="!loginData.logged">
-		<h2>You need to log in to change settings</h2>
-		<form>
-			<label for=password>Password:</label>
-			<input type="password" name="password" ng-model="loginData.password">
-			<input type="button" class="btn btn-primary" value="Login" ng-click="login(loginData.password)">
-		</form>
-		<div ng-show="loginData.error">
-			<p>{{loginData.error}}</p>
-		</div>
-	</div>
+        <div class="container" ng-show="view=='config'" ng-cloak>
 
-	<div class="col-sm-4 h-100 offset-sm-4 text-center loader-container" ng-show="!sensorData.fetched && loginData.logged">
-		<div class="spinner"></div>
-		<p>Loading sensor data...</p>
-	</div>
+            <div class="login-form text-center" ng-show="!loginData.logged">
+                <h2>You need to log in to change settings</h2>
+                <form>
+                    <label for=password>Password:</label>
+                    <input type="password" name="password" ng-model="loginData.password">
+                    <input type="button" class="btn btn-primary" value="Login" ng-click="login(loginData.password)">
+                </form>
+                <div ng-show="loginData.error">
+                    <p>{{loginData.error}}</p>
+                </div>
+            </div>
 
-	<div ng-show="sensorData.fetched && loginData.logged">
-		<div ng-show="!sensorData.unregisteredSensors.length && !sensorData.registeredSensors.length">
-			<div class="alert alert-warning" role="alert">
-				<h4 class="alert-heading text-center">No sensors found!</h4>
-				<p class="text-center">No sensors were found! Check for the connections and see that required buses are enabled!</p>
-			</div>
-		</div>
-		<div ng-show="sensorData.unregisteredSensors.length">
-			<h2>Local sensors that are not registered: </h2>
-			<table>
-				<tr>
-					<th>Source</th>
-					<th>Type</th>
-					<th>Name</th>
-					<th>Color</th>
-					<th></th>
-				</tr>
-				<tr ng-repeat="newSensor in sensorData.unregisteredSensors">
-					<td>
-						<form class="form-inline">
-						<input type="text" name="source" ng-model="newSensor.source" readonly="true">
-					</td><td>
-						<input type="text" name="type" ng-model="newSensor.type" readonly="true">
-					</td><td>
-						<input type="text" name="source" ng-model="newSensor.name" placeholder="Sensor name">
-					</td><td>
-						<select name="color" ng-model="newSensor.color">
-							<option value="red">Red</option>
-							<option value="green">Green</option>
-							<option value="blue">Blue</option>
-							<option value="gold">Gold</option>
-							<option value="cyan">Cyan</option>
-							<option value="pink">Pink</option>
-						</select>
-					</td><td>
-						<input type="button" class="btn btn-primary" value="Register sensor" ng-click="registerSensor(newSensor)">
-						</form>
-					</td>
-				</tr>
-			</table>
-		</div>
-		<div ng-show="sensorData.registeredSensors.length">
-            <h2>Registered sensors: </h2>
-			<table>
-				<tr>
-					<th>Source</th>
-					<th>Type</th>
-					<th>Name</th>
-					<th>Color</th>
-					<th>Enabled</th>
-					<th></th>
-					<th></th>
-				</tr>
-                        	<tr ng-repeat="editSensor in sensorData.registeredSensors">
-					<td>
-		                                <form class="form-inline">
-						<input type="hidden" name="id" ng-model="editSensor.devices_id">
-                        	                <input type="text" name="source" ng-model="editSensor.devices_source" readonly="true">
-					</td><td>
-	                                        <input type="text" name="type" ng-model="editSensor.devices_type" readonly="true">
-					</td><td>
-                	                        <input type="text" name="source" ng-model="editSensor.devices_name">
-					</td><td>
-                                	        <select name="color" ng-model="editSensor.devices_color">
-                                        	        <option value="red" selected="sensor.devices_color=='red'">Red</option>
-                                                	<option value="green" selected="sensor.devices_color=='green'">Green</option>
-	                                                <option value="blue" selected="sensor.devices_color=='blue'">Blue</option>
-        	                                        <option value="gold" selected="sensor.devices_color=='gold'">Gold</option>
-                	                                <option value="cyan" selected="sensor.devices_color=='cyan'">Cyan</option>
-                        	                        <option value="pink" selected="sensor.devices_color=='pink'">Pink</option>
-                                	        </select>
-					</td><td>
-        	                                <input type="checkbox" ng-model="editSensor.devices_enabled" name="enabled" checked="editSensor.devices_enabled">
-					</td><td>
-                        	                <input type="button" class="btn btn-primary" value="Update" ng-click="updateSensor(editSensor)">
-					</td><td>
-						<input type="button" class="btn btn-danger" value="Delete" ng-click="deleteSensor(editSensor)">	
-						</form>
-					</td>
-	                        </tr>
-			</table>
+            <div class="col-sm-4 h-100 offset-sm-4 text-center loader-container" ng-show="!sensorData.fetched && loginData.logged">
+                <div class="spinner"></div>
+                <p>Loading sensor data...</p>
+            </div>
+
+            <div ng-show="sensorData.fetched && loginData.logged">
+
+                <div ng-show="!sensorData.unregisteredSensors.length && !sensorData.registeredSensors.length">
+                    <div class="alert alert-warning" role="alert">
+                        <h4 class="alert-heading text-center">No sensors found!</h4>
+                        <p class="text-center">No sensors were found! Check for the connections and see that required buses are enabled!</p>
+                    </div>
                 </div>
 
-		        <div ng-show="sensorData.removedSensors.length">
-                        <h2>Disconnected sensors that remain in database: </h2>
-                        <table>
-                                <tr>
-                                        <th>Source</th>
-                                        <th>Type</th>
-                                        <th>Name</th>
-                                        <th>Color</th>
-                                        <th>Enabled</th>
-                                        <th></th>
-                                        <th></th>
-                                </tr>
-                                <tr ng-repeat="editSensor in sensorData.removedSensors">
-                                        <td>
-                                                <form class="form-inline">
-                                                <input type="hidden" name="id" ng-model="editSensor.devices_id">
-                                                <input type="text" name="source" ng-model="editSensor.devices_source" readonly="true">
-                                        </td><td>
-                                                <input type="text" name="type" ng-model="editSensor.devices_type" readonly="true">
-                                        </td><td>
-                                                <input type="text" name="source" ng-model="editSensor.devices_name">
-                                        </td><td>
-                                                <select name="color" ng-model="editSensor.devices_color">
-                                                        <option value="red" selected="sensor.devices_color=='red'">Red</option>
-                                                        <option value="green" selected="sensor.devices_color=='green'">Green</option>
-                                                        <option value="blue" selected="sensor.devices_color=='blue'">Blue</option>
-                                                        <option value="gold" selected="sensor.devices_color=='gold'">Gold</option>
-                                                        <option value="cyan" selected="sensor.devices_color=='cyan'">Cyan</option>
-                                                        <option value="pink" selected="sensor.devices_color=='pink'">Pink</option>
-                                                </select>
-                                        </td><td>
-                                                <input type="checkbox" ng-model="editSensor.devices_enabled" name="enabled" checked="editSensor.devices_enabled" disabled="true">
-                                        </td><td>
-                                                <input type="button" class="btn btn-primary" value="Update" ng-click="updateSensor(editSensor)">
-                                        </td><td>
-                                                <input type="button" class="btn btn-danger" value="Delete" ng-click="deleteSensor(editSensor)">
-                                                </form>
-                                        </td>
-                                </tr>
-                        </table>
+                <div ng-show="sensorData.unregisteredSensors.length">
+                    <h2>Local sensors that are not registered: </h2>
+                    <table>
+                        <tr>
+                            <th>Source</th>
+                            <th>Type</th>
+                            <th>Name</th>
+                            <th>Color</th>
+                            <th></th>
+                        </tr>
+                        <tr ng-repeat="newSensor in sensorData.unregisteredSensors">
+                            <td>
+                                <form class="form-inline">
+                                <input type="text" name="source" ng-model="newSensor.source" readonly="true">
+                            </td><td>
+                                <input type="text" name="type" ng-model="newSensor.type" readonly="true">
+                            </td><td>
+                                <input type="text" name="source" ng-model="newSensor.name" placeholder="Sensor name">
+                            </td><td>
+                                <select name="color" ng-model="newSensor.color">
+                                    <option value="red">Red</option>
+                                    <option value="green">Green</option>
+                                    <option value="blue">Blue</option>
+                                    <option value="gold">Gold</option>
+                                    <option value="cyan">Cyan</option>
+                                    <option value="pink">Pink</option>
+                                </select>
+                            </td><td>
+                                <input type="button" class="btn btn-primary" value="Register sensor" ng-click="registerSensor(newSensor)">
+                                </form>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
 
+                <div ng-show="sensorData.registeredSensors.length">
+                    <h2>Registered sensors: </h2>
+                    <table>
+                        <tr>
+                            <th>Source</th>
+                            <th>Type</th>
+                            <th>Name</th>
+                            <th>Color</th>
+                            <th>Enabled</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        <tr ng-repeat="editSensor in sensorData.registeredSensors">
+                            <td>
+                                <form class="form-inline">
+                                <input type="hidden" name="id" ng-model="editSensor.devices_id">
+                                <input type="text" name="source" ng-model="editSensor.devices_source" readonly="true">
+                            </td><td>
+                                <input type="text" name="type" ng-model="editSensor.devices_type" readonly="true">
+                            </td><td>
+                                <input type="text" name="source" ng-model="editSensor.devices_name">
+                            </td><td>
+                                <select name="color" ng-model="editSensor.devices_color">
+                                    <option value="red" selected="sensor.devices_color=='red'">Red</option>
+                                    <option value="green" selected="sensor.devices_color=='green'">Green</option>
+                                    <option value="blue" selected="sensor.devices_color=='blue'">Blue</option>
+                                    <option value="gold" selected="sensor.devices_color=='gold'">Gold</option>
+                                    <option value="cyan" selected="sensor.devices_color=='cyan'">Cyan</option>
+                                    <option value="pink" selected="sensor.devices_color=='pink'">Pink</option>
+                                </select>
+                            </td><td>
+                                <input type="checkbox" ng-model="editSensor.devices_enabled" name="enabled" checked="editSensor.devices_enabled">
+                            </td><td>
+                                <input type="button" class="btn btn-primary" value="Update" ng-click="updateSensor(editSensor)">
+                            </td><td>
+                                <input type="button" class="btn btn-danger" value="Delete" ng-click="deleteSensor(editSensor)">
+                                </form>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
 
-	</div>
+                <div ng-show="sensorData.removedSensors.length">
+                    <h2>Disconnected sensors that remain in database: </h2>
+                    <table>
+                        <tr>
+                            <th>Source</th>
+                            <th>Type</th>
+                            <th>Name</th>
+                            <th>Color</th>
+                            <th>Enabled</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        <tr ng-repeat="editSensor in sensorData.removedSensors">
+                            <td>
+                                <form class="form-inline">
+                                <input type="hidden" name="id" ng-model="editSensor.devices_id">
+                                <input type="text" name="source" ng-model="editSensor.devices_source" readonly="true">
+                            </td><td>
+                                <input type="text" name="type" ng-model="editSensor.devices_type" readonly="true">
+                            </td><td>
+                                <input type="text" name="source" ng-model="editSensor.devices_name">
+                            </td><td>
+                                <select name="color" ng-model="editSensor.devices_color">
+                                    <option value="red" selected="sensor.devices_color=='red'">Red</option>
+                                    <option value="green" selected="sensor.devices_color=='green'">Green</option>
+                                    <option value="blue" selected="sensor.devices_color=='blue'">Blue</option>
+                                    <option value="gold" selected="sensor.devices_color=='gold'">Gold</option>
+                                    <option value="cyan" selected="sensor.devices_color=='cyan'">Cyan</option>
+                                    <option value="pink" selected="sensor.devices_color=='pink'">Pink</option>
+                                </select>
+                            </td><td>
+                                <input type="checkbox" ng-model="editSensor.devices_enabled" name="enabled" checked="editSensor.devices_enabled" disabled="true">
+                            </td><td>
+                                <input type="button" class="btn btn-primary" value="Update" ng-click="updateSensor(editSensor)">
+                            </td><td>
+                                <input type="button" class="btn btn-danger" value="Delete" ng-click="deleteSensor(editSensor)">
+                                </form>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-    </div>
+        <div class="container" ng-class="{'vis-hidden': view!='live'}" ng-cloak>
+            <div id="tempgraph"></div>
+            <div id="humgraph"></div>
+            <div id="presgraph"></div>
+            <script>
 
-    <div class="container" ng-class="{'vis-hidden': view!='live'}" ng-cloak>
-	<div id="tempgraph"></div>
-	<div id="humgraph"></div>
-	<div id="presgraph"></div>
-	<script>
+                var tempChart = new LineChart();
+                tempChart.init({
+                    placement: 'tempgraph',
+                    property: 'temperature'
+                });
 
-            var tempChart = new LineChart();
-            tempChart.init({
-                placement: 'tempgraph',
-                property: 'temperature'
-            });
+                var humChart = new LineChart();
+                humChart.init({
+                    placement: 'humgraph',
+                    property: 'humidity'
+                });
 
-            var humChart = new LineChart();
-            humChart.init({
-                placement: 'humgraph',
-                property: 'humidity'
-            });
+                var presChart = new LineChart();
+                presChart.init({
+                    placement: 'presgraph',
+                    property: 'pressure'
+                });
+            </script>
+        </div>
 
-            var presChart = new LineChart();
-            presChart.init({
-                placement: 'presgraph',
-                property: 'pressure'
-            });
-	</script>
-    </div>
-
-</body>
+    </body>
 </html>
