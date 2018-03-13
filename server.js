@@ -66,7 +66,7 @@ var start = function (app, http, sensors, auth, logger) {
         if ( typeof req.body.type !== 'string'
           || typeof req.body.name !== 'string'
           || typeof req.body.source !== 'string'
-                  || typeof req.body.color !== 'string') {
+          || typeof req.body.color !== 'string') {
             return res.status(400).send({ msg: "Invalid input values." });
         }
 
@@ -74,13 +74,13 @@ var start = function (app, http, sensors, auth, logger) {
             type: req.body.type,
             name: req.body.name,
             source: req.body.source,
-                        color: req.body.color
+            color: req.body.color
         }, function (err) {
             if (err) return res.status(400).send(err);
             sensors.getAllSensors(function (err, sensors) {
-                                if (err) return res.status(500).send({ msg: "Error getting sensors." });
-                                res.send(sensors);
-                        });
+                if (err) return res.status(500).send({ msg: "Error getting sensors." });
+                res.send(sensors);
+            });
         });
     });
 
@@ -89,8 +89,8 @@ var start = function (app, http, sensors, auth, logger) {
         if ( typeof req.body.devices_id !== 'number'
           || typeof req.body.devices_type !== 'string'
           || typeof req.body.devices_name !== 'string'
-                  || typeof req.body.devices_source !== 'string'
-                  || typeof req.body.devices_color !== 'string'
+          || typeof req.body.devices_source !== 'string'
+          || typeof req.body.devices_color !== 'string'
           || typeof req.body.devices_enabled !== 'boolean') {
             return res.status(400).send("Invalid input values.");
         }
@@ -98,14 +98,14 @@ var start = function (app, http, sensors, auth, logger) {
         sensors.updateSensor({
             id: req.body.devices_id,
             name: req.body.devices_name,
-                        color: req.body.devices_color,
-                        enabled: req.body.devices_enabled
+            color: req.body.devices_color,
+            enabled: req.body.devices_enabled
         }, function (err) {
             if (err) return res.status(400).send(err);
             sensors.getAllSensors(function (err, sensors) {
-                                if (err) return res.status(500).send({ msg: "Error getting sensors." });
-                                res.send(sensors);
-                        });
+                if (err) return res.status(500).send({ msg: "Error getting sensors." });
+                res.send(sensors);
+            });
         });
 
     });
@@ -119,9 +119,9 @@ var start = function (app, http, sensors, auth, logger) {
         }, function (err) {
             if (err) return res.status(400).send(err);
             sensors.getAllSensors(function (err, sensors) {
-                        if (err) return res.status(500).send({ msg: "Error getting sensors." });
-                            res.send(sensors);
-                    });
+                if (err) return res.status(500).send({ msg: "Error getting sensors." });
+                res.send(sensors);
+            });
         });
     });
 
@@ -138,7 +138,7 @@ var start = function (app, http, sensors, auth, logger) {
     });
 
     http.listen(80, function () {
-            console.log('listening port 80');
+        console.log('listening port 80');
     });
 }
 
