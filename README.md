@@ -187,15 +187,13 @@ Just browse to your RPI's ip address, or if you created wlan-ap connect to the n
 **NOTE!**
 * So far the hardcoded password for configuration is 'password'.
 * Also it is good to point out that server.js contains express-session secret for sessions, which should also be changed.
-* So far depending on your RPI revision you might need to change SMBus from 0 to 1 in /scripts/bme280.py on line 30.
 
 ## TODO
 * Proper superuser authentication instead of current dummy
-* Add revision identification feature for BME-280 script so that sensor can be read on all Raspberry PIs without manual modification of script
 * Package manager and or bundler for Web-ui dependancies
 * LCD screen support  
 * Config panel
   * Backend log display tool for ui?
-  * Poweroff button to config-panel
+  * Poweroff/reboot button to config-panel
   * Set time window of live graph x-axis
   * Set amount of time how old data will be fetched for graph
