@@ -18,16 +18,43 @@
 # http://www.raspberrypi-spy.co.uk/
 #
 #--------------------------------------
+
+# On success prints:    { 
+#                           "temperature": float, 
+#                           "pressure": float, 
+#                           "humidity": float 
+#                       }
+#
+# On error prints:      {   "err":  {
+#                               "type": integer (0: I2C disabled, 1: Device does not exist),
+#                               "msg": string
+#                           }
+#                       }
+
 import smbus
 import time
+import os.path
+from error import printError
+from sys import exit
 from ctypes import c_short
 from ctypes import c_byte
 from ctypes import c_ubyte
 
+busNum = -1
+if os.path.exists("/dev/i2c-0"):
+  busNum = 0
+if os.path.exists("/dev/i2c-1"):
+  busNum = 1
+if busNum == -1:
+  printError(0, "I2C is not enabled.")
+  #print "{ \"err\": { \"I2C is not enabled.\"} }"
+  exit(0)
+
+
 DEVICE = 0x76 # Default device I2C address
 
 
-bus = smbus.SMBus(0) # Rev 2 Pi, Pi 2 & Pi 3 uses bus 1
+bus = smbus.SMBus(busNum) # Rev 2 Pi, Pi 2 & Pi 3 uses bus 1
                      # Rev 1 Pi uses bus 0
 
 def getShort(data, index):
@@ -161,8 +188,13 @@ def main():
   #(chip_id, chip_version) = readBME280ID()
   #print "Chip ID     :", chip_id
   #print "Version     :", chip_version
-
-  temperature,pressure,humidity = readBME280All()
+  
+  try:
+    temperature,pressure,humidity = readBME280All()
+  except:
+    printError(1, "Device not connected.")
+    #print "{ \"err\": \"Device not connected\" }"
+    exit(0)
 
   print "{ \"temperature\": ", temperature, ", \"pressure\": ", pressure, ", \"humidity\": ", humidity, "}"
 

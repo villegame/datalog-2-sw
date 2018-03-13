@@ -33,15 +33,6 @@
 	</li>
     </ul>
 
-    <div class="container" ng-show="view=='home'">
-
-        <div class="jumbotron col-sm-8 offset-sm-2 text-center">
-            <h1 class="mx-auto display-4">Sensor monitor</h1>
-	    <p class="mx-auto lead">Awesome app to monitor stuff!</p>
-        </div>
-
-    </div>
-
     <div class="container" ng-show="view=='config'" ng-cloak>
 
 	<div class="login-form text-center" ng-show="!loginData.logged">
@@ -62,6 +53,12 @@
 	</div>
 
 	<div ng-show="sensorData.fetched && loginData.logged">
+		<div ng-show="!sensorData.unregisteredSensors.length && !sensorData.registeredSensors.length">
+			<div class="alert alert-warning" role="alert">
+				<h4 class="alert-heading text-center">No sensors found!</h4>
+				<p class="text-center">No sensors were found! Check for the connections and see that required buses are enabled!</p>
+			</div>
+		</div>
 		<div ng-show="sensorData.unregisteredSensors.length">
 			<h2>Local sensors that are not registered: </h2>
 			<table>
@@ -96,9 +93,8 @@
 				</tr>
 			</table>
 		</div>
-
 		<div ng-show="sensorData.registeredSensors.length">
-                        <h2>Registered sensors: </h2>
+            <h2>Registered sensors: </h2>
 			<table>
 				<tr>
 					<th>Source</th>
@@ -132,12 +128,55 @@
 					</td><td>
                         	                <input type="button" class="btn btn-primary" value="Update" ng-click="updateSensor(editSensor)">
 					</td><td>
-						<input type="button" class="btn btn-danger" value="Delete" ng-click="deleteSensor(editSensor)">				
+						<input type="button" class="btn btn-danger" value="Delete" ng-click="deleteSensor(editSensor)">	
 						</form>
 					</td>
 	                        </tr>
 			</table>
                 </div>
+
+		        <div ng-show="sensorData.removedSensors.length">
+                        <h2>Disconnected sensors that remain in database: </h2>
+                        <table>
+                                <tr>
+                                        <th>Source</th>
+                                        <th>Type</th>
+                                        <th>Name</th>
+                                        <th>Color</th>
+                                        <th>Enabled</th>
+                                        <th></th>
+                                        <th></th>
+                                </tr>
+                                <tr ng-repeat="editSensor in sensorData.removedSensors">
+                                        <td>
+                                                <form class="form-inline">
+                                                <input type="hidden" name="id" ng-model="editSensor.devices_id">
+                                                <input type="text" name="source" ng-model="editSensor.devices_source" readonly="true">
+                                        </td><td>
+                                                <input type="text" name="type" ng-model="editSensor.devices_type" readonly="true">
+                                        </td><td>
+                                                <input type="text" name="source" ng-model="editSensor.devices_name">
+                                        </td><td>
+                                                <select name="color" ng-model="editSensor.devices_color">
+                                                        <option value="red" selected="sensor.devices_color=='red'">Red</option>
+                                                        <option value="green" selected="sensor.devices_color=='green'">Green</option>
+                                                        <option value="blue" selected="sensor.devices_color=='blue'">Blue</option>
+                                                        <option value="gold" selected="sensor.devices_color=='gold'">Gold</option>
+                                                        <option value="cyan" selected="sensor.devices_color=='cyan'">Cyan</option>
+                                                        <option value="pink" selected="sensor.devices_color=='pink'">Pink</option>
+                                                </select>
+                                        </td><td>
+                                                <input type="checkbox" ng-model="editSensor.devices_enabled" name="enabled" checked="editSensor.devices_enabled" disabled="true">
+                                        </td><td>
+                                                <input type="button" class="btn btn-primary" value="Update" ng-click="updateSensor(editSensor)">
+                                        </td><td>
+                                                <input type="button" class="btn btn-danger" value="Delete" ng-click="deleteSensor(editSensor)">
+                                                </form>
+                                        </td>
+                                </tr>
+                        </table>
+                </div>
+
 
 	</div>
 
