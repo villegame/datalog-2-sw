@@ -31,9 +31,19 @@ var getLocalSensors = function (cb) {
                 },
                 function (done) {
                         exec('timeout ' + scriptTimeout + ' python ' + __dirname + '/scripts/bme280.py', function (err, stdout, stderr) {
-                                if (err) return done();
+                                if (err) return done(err);
+				var output;
+				try {
+					output = JSON.parse(stdout);
+				} catch (e) {
+					return done(e);
+				}
+				if (output.hasOwnProperty('err')) {
+					return done(output.err);
+				}
                                 sensors.push({type: "BME-280", source: "I2C"});
                                 done();
+
                         });
                 }],
                 function (err) {
@@ -150,6 +160,7 @@ var getAllSensors = function (cb) {
                         if (err) return cb(err);
 
                         var unregisteredSensors = [];
+			var registeredSensors = [];
                         var removedSensors = [];
 
                         localSensors.forEach(function (lSensor) {
@@ -167,12 +178,14 @@ var getAllSensors = function (cb) {
                                         if (sSensor.devices_type == "1W-TEMP" && sSensor.devices_source == lSensor.source) isLocal = true;
                                         if (sSensor.devices_type == "BME-280" && lSensor.type == "BME-280") isLocal = true;
                                 });
-                                array[i].connected = isLocal;
+                                if(isLocal) registeredSensors.push(sSensor);
+				else removedSensors.push(sSensor);
                         });
 
 			return cb(null, {
 				unregisteredSensors: unregisteredSensors,
-                                registeredSensors: storedSensors
+                                registeredSensors: registeredSensors,
+				removedSensors: removedSensors
 			});
                 }
         );

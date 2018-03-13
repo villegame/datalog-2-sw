@@ -14,26 +14,33 @@ var readOneWire = function (sensors, eSensor, timestamp) {
                 	logger.log({ msg: "Error reading 1W-TEMP sensor.", err: err });
                         return;
                 }
+		var output;
                 try {
-                        var output = JSON.parse(stdout);
-                        io.emit('sensor-data', {
-                        	id: eSensor.devices_id,
-                                sensor: eSensor.type,
-                                temperature: output.temperature,
-                                time: timestamp
-                        });
-                        sensors.addValues({
-                                id: eSensor.devices_id,
-                                temperature: output.temperature,
-                                humidity: null,
-                                pressure: null,
-                                time: timestamp
-                        }, function (err, res) {
-                                if (err) logger.log({ msg: "Error adding 1W-TEMP data.", err: err });
-                        });
+                        output = JSON.parse(stdout);
                 } catch (err) {
                         logger.log({ msg: "Error parsing 1W-TEMP sensor data.", err: err });
+			return;
                 }
+
+		if(output.hasOwnProperty("err")) {
+			logger.log({ msg: "Exception reading 1W-TEMP sensor.", err: output.err });
+		}
+
+                io.emit('sensor-data', {
+	              	id: eSensor.devices_id,
+                        sensor: eSensor.type,
+                        temperature: output.temperature,
+                        time: timestamp
+                });
+                sensors.addValues({
+                        id: eSensor.devices_id,
+                        temperature: output.temperature,
+                        humidity: null,
+                        pressure: null,
+                        time: timestamp
+                }, function (err, res) {
+                        if (err) logger.log({ msg: "Error adding 1W-TEMP data.", err: err });
+                });
 	});
 };
 
@@ -87,14 +94,6 @@ var start = function (http, sensors, log) {
 					enabledSensors = results;
 					done();
 				});
-			},
-			function (done) {
-				// Get list of local (connected) sensors
-				sensors.getLocalSensors(function (err, results) {
-					if (err) return done(err);
-					localSensors = results;
-					done();
-				});
 			}],
 			function (err) {
 
@@ -108,15 +107,7 @@ var start = function (http, sensors, log) {
 
 				enabledSensors.forEach(function (eSensor) {
 					
-					// Check that sensor is connected (is present in local sensors)
-					var isConnected = false;
-					localSensors.forEach(function (lSensor) {
-						if(eSensor.devices_source == lSensor.source) isConnected = true;
-					});
-					if(!isConnected) return;
-
 					if(eSensor.devices_type == '1W-TEMP') readOneWire(sensors, eSensor, timestamp);
-										
 					if(eSensor.devices_type == 'BME-280') readBme(sensors, eSensor, timestamp);
 
 				});
