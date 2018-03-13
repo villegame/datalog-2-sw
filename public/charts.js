@@ -65,7 +65,7 @@ var LineChart = function () {
 					});
 				gd = gd3.node();
 		
-				Plotly.plot(gd, graphData, layout);  
+				Plotly.plot(gd, graphData, layout, { displaylogo: false });  
 
 				window.onresize = function () {
 					Plotly.Plots.resize(gd);
