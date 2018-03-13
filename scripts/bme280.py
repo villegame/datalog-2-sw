@@ -18,9 +18,23 @@
 # http://www.raspberrypi-spy.co.uk/
 #
 #--------------------------------------
+
+# On success prints:    { 
+#                           "temperature": float, 
+#                           "pressure": float, 
+#                           "humidity": float 
+#                       }
+#
+# On error prints:      {   "err":  {
+#                               "type": integer (0: I2C disabled, 1: Device does not exist),
+#                               "msg": string
+#                           }
+#                       }
+
 import smbus
 import time
 import os.path
+from error import printError
 from sys import exit
 from ctypes import c_short
 from ctypes import c_byte
@@ -32,7 +46,8 @@ if os.path.exists("/dev/i2c-0"):
 if os.path.exists("/dev/i2c-1"):
   busNum = 1
 if busNum == -1:
-  print "{ \"err\": \"I2C is not enabled.\" }"
+  printError(0, "I2C is not enabled.")
+  #print "{ \"err\": { \"I2C is not enabled.\"} }"
   exit(0)
 
 
@@ -177,7 +192,8 @@ def main():
   try:
     temperature,pressure,humidity = readBME280All()
   except:
-    print "{ \"err\": \"Device not connected\" }"
+    printError(1, "Device not connected.")
+    #print "{ \"err\": \"Device not connected\" }"
     exit(0)
 
   print "{ \"temperature\": ", temperature, ", \"pressure\": ", pressure, ", \"humidity\": ", humidity, "}"
