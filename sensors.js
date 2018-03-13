@@ -91,7 +91,7 @@ var getValues = function (cb) {
 
     async.series([
         function (done) {
-            getEnabledSensors(function (err, devices) {
+            getSensorsFromDb(function (err, devices) {
                 if (err) return done(err);
                 devices.forEach(function (device) {
                     var newDevice = {
