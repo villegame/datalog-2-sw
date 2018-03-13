@@ -19,14 +19,20 @@ var getLocalSensors = function (cb) {
                 function (done) {
                         exec('timeout ' + scriptTimeout + ' python ' + __dirname + '/scripts/1w.py', function (err, stdout, stderr) {
                                 if (err) return done(err);
+                                var output;
                                 try {
-                                        JSON.parse(stdout).sensors.forEach(function(sensor) {
-                                                sensors.push({type: "1W-TEMP", source: sensor});
-                                        });
-                                        done();
+                                        output = JSON.parse(stdout); //
                                 } catch (e) {
                                         return done(e);
                                 }
+                                if (output.hasOwnProperty('err')) {
+                                    return done(output.err.msg);
+                                }
+                                output.sensors.forEach(function(sensor) {
+                                        sensors.push({type: "1W-TEMP", source: sensor});
+                                });
+                                done();
+
                         });
                 },
                 function (done) {
@@ -39,7 +45,7 @@ var getLocalSensors = function (cb) {
 					return done(e);
 				}
 				if (output.hasOwnProperty('err')) {
-					return done(output.err);
+					return done(output.err.msg);
 				}
                                 sensors.push({type: "BME-280", source: "I2C"});
                                 done();
@@ -160,7 +166,7 @@ var getAllSensors = function (cb) {
                         if (err) return cb(err);
 
                         var unregisteredSensors = [];
-			var registeredSensors = [];
+			            var registeredSensors = [];
                         var removedSensors = [];
 
                         localSensors.forEach(function (lSensor) {
@@ -179,14 +185,14 @@ var getAllSensors = function (cb) {
                                         if (sSensor.devices_type == "BME-280" && lSensor.type == "BME-280") isLocal = true;
                                 });
                                 if(isLocal) registeredSensors.push(sSensor);
-				else removedSensors.push(sSensor);
+				                else removedSensors.push(sSensor);
                         });
 
-			return cb(null, {
-				unregisteredSensors: unregisteredSensors,
-                                registeredSensors: registeredSensors,
-				removedSensors: removedSensors
-			});
+			            return cb(null, {
+            				unregisteredSensors: unregisteredSensors,
+                            registeredSensors: registeredSensors,
+            				removedSensors: removedSensors
+			            });
                 }
         );
 };
@@ -195,10 +201,10 @@ module.exports = {
 	init: init, 
 	getLocalSensors: getLocalSensors,
 	addSensor: addSensor, 
-    	updateSensor: updateSensor,
-        deleteSensor: deleteSensor,
-        getEnabledSensors: getEnabledSensors,
+   	updateSensor: updateSensor,
+    deleteSensor: deleteSensor,
+    getEnabledSensors: getEnabledSensors,
 	addValues: addValues,
 	getValues: getValues,
-        getAllSensors: getAllSensors
+    getAllSensors: getAllSensors
 };

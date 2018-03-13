@@ -12,7 +12,8 @@ datalogUi.controller('mainController', function mainController($scope, $http) {
     $scope.sensorData = {
 	fetched : false,
 	unregisteredSensors : [],
-	registeredSensors : []
+	registeredSensors : [],
+    removedSensors : []
     };   
 
     // Get login status for displaying logout button
@@ -20,7 +21,7 @@ datalogUi.controller('mainController', function mainController($scope, $http) {
         method: 'GET', 
         url: '/login'
     }).then(function (res) {
-	$scope.loginData.logged = res.data.logged;
+       $scope.loginData.logged = res.data.logged;
     }, function (err) {
     });
 
@@ -31,6 +32,7 @@ datalogUi.controller('mainController', function mainController($scope, $http) {
         }).then(function (res) {
             $scope.sensorData.unregisteredSensors = res.data.unregisteredSensors;
             $scope.sensorData.registeredSensors = res.data.registeredSensors;
+            $scope.sensorData.removedSensors = res.data.removedSensors;
             $scope.sensorData.fetched = true;
         }, function (err) {
         });
