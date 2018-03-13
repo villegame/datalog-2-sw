@@ -1,6 +1,6 @@
 var datalogUi = angular.module('datalogUi', []);
 
-datalogUi.controller('mainController', function mainController($scope, $http) {
+datalogUi.controller('mainController', ['$scope', '$http', function mainController($scope, $http) {
 
     $scope.view = 'live';
     $scope.loginData = {
@@ -119,6 +119,6 @@ datalogUi.controller('mainController', function mainController($scope, $http) {
         });
     };
 
-});
+}]);
 
 
