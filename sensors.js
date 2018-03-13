@@ -21,15 +21,15 @@ var getLocalSensors = function (cb) {
                 if (err) return done(err);
                 var output;
                 try {
-                        output = JSON.parse(stdout); //
+                    output = JSON.parse(stdout); //
                 } catch (e) {
-                        return done(e);
+                    return done(e);
                 }
                 if (output.hasOwnProperty('err')) {
                     return done(output.err.msg);
                 }
                 output.sensors.forEach(function(sensor) {
-                        sensors.push({type: "1W-TEMP", source: sensor});
+                    sensors.push({type: "1W-TEMP", source: sensor});
                 });
                 done();
             });
@@ -52,8 +52,8 @@ var getLocalSensors = function (cb) {
             });
         }],
         function (err) {
-            if (err) console.error("Error getting local sensors", err);
-            cb(null, sensors);
+            if (err) logger.log({ msg: "Error getting local sensors.", err: err });
+            cb(err, sensors);
         }
     );
 };
