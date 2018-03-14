@@ -5,6 +5,7 @@ var reader = require('./reader');
 var db = require('./db');
 var server = require('./server');
 var sensors = require('./sensors');
+var tools = require('./tools');
 var auth = require('./auth');
 var logger = require('./logger');
 
@@ -14,6 +15,9 @@ logger.init();
 // Init sensors
 sensors.init(db, logger);
 
+// Init charts
+charts.init(db, logger);
+
 // Start reader
 reader.start(http, sensors, logger);
 
@@ -21,4 +25,4 @@ reader.start(http, sensors, logger);
 auth.init(db, logger);
 
 // Start web server
-server.start(app, http, sensors, auth, logger);
+server.start(app, http, sensors, tools, auth, logger);

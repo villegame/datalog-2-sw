@@ -14,7 +14,7 @@ var isAdmin = function (req, res, next) {
     next();
 };
 
-var start = function (app, http, sensors, auth, logger) {
+var start = function (app, http, sensors, tools,  auth, logger) {
 
     // index.html will be read from here, no need for app.get('/'...
     app.use(express.static(__dirname + '/public'));
@@ -162,6 +162,15 @@ var start = function (app, http, sensors, auth, logger) {
                 if (err) return res.status(500).send({ msg: "Error getting sensors." });
                 res.send(sensors);
             });
+        });
+    });
+
+    app.post('/tools/time', isAdmin, function (req, res) {
+        if (typeof req.body.time !== 'number') return res.status(400).send("Invalid input values.");
+
+        tools.setDateTime({ time : req.body.time }, function (err) {
+            if (err) return res.status(500).send(err);
+            return res.status(200).send({ msg: "ok" });
         });
     });
 

@@ -154,7 +154,7 @@ datalogUi.controller('mainController', ['$scope', '$http', function mainControll
     $scope.updateTime = function () {
         $http({
             method: 'POST',
-            url: '/charts/time',
+            url: '/tools/time',
             data: { time: parseInt(Date.now()/1000) }
         }).then(function (res) {
             console.log("RES", res);
