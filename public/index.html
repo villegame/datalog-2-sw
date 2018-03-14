@@ -21,7 +21,7 @@
 
     <body class="main" ng-controller="mainController">
 
-        <ul class="nav nav-pills nav-fill sticky-top">
+        <ul class="nav nav-pills nav-fill sticky-top" ng-cloak>
             <li class="nav-item" ng-show="loginData.logged">
                 <a class="nav-link" href ng-click="logout()">Logout</a>
             </li>
@@ -183,9 +183,15 @@
         </div>
 
         <div class="container" ng-class="{'vis-hidden': view!='live'}" ng-cloak>
-            <div id="tempgraph"></div>
-            <div id="humgraph"></div>
-            <div id="presgraph"></div>
+
+            <div class="row">
+                <div id="tempgraph" class="col-sm-12"></div>
+            </div>
+            <div class="row">
+                <div id="humgraph" class="col-md-6"></div>
+                <div id="presgraph" class="col-md-6"></div>
+            </div>
+
             <script>
 
                 var tempChart = new LineChart();
