@@ -16,7 +16,7 @@ logger.init();
 sensors.init(db, logger);
 
 // Init charts
-charts.init(db, logger);
+tools.init(db, logger);
 
 // Start reader
 reader.start(http, sensors, logger);
