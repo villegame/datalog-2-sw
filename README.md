@@ -12,7 +12,7 @@ This repository contains core functionalities of logger including:
 * Web-UI with easy to use settings and graphs
 
 Screenshots:  
-[Live graph](https://villegame.files.wordpress.com/2018/03/live.png)  
+[Live graph](https://villegame.files.wordpress.com/2018/03/live1.png)  
 [Configuration](https://villegame.files.wordpress.com/2018/03/config1.png)  
 
 ## Use
