@@ -61,7 +61,8 @@ var LineChart = function () {
 					.append('div')
 					.style({
 						width: '100%',
-						height: 450,
+						height: '50vh',
+						'min-height': '400px'
 					});
 				gd = gd3.node();
 		
