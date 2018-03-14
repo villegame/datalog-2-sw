@@ -12,7 +12,7 @@ var init = function (dataBase, log) {
 
 var setDateTime = function (data, cb) {
     exec('date +%s -s @' + data.time, function (err, stdout, stderr) {
-        if(err) console.log("err", err);
+        if(err) logger.log({ msg: "Error syncing date time.", err: err });
     });
 };
 
