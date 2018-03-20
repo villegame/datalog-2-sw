@@ -86,7 +86,7 @@
                 <div class="card-deck mt-4">
                     <div class="card" ng-show="sensorData.unregisteredSensors.length">
                         <h5 class="card-header">Unregistered sensors </h5>
-                        <div class="card-body">
+                        <div class="card-body p-2">
                             <table>
                                 <tr>
                                     <th>Source</th>
@@ -125,7 +125,7 @@
                 <div class="card-deck mt-4">
                     <div class="card" ng-show="sensorData.registeredSensors.length">
                         <h5 class="card-header">Registered sensors </h5>
-                        <div class="card-body">
+                        <div class="card-body p-2">
                             <table>
                                 <tr>
                                     <th>Source</th>
@@ -171,7 +171,7 @@
                 <div class="card-deck mt-4">
                     <div class="card" ng-show="sensorData.removedSensors.length">
                         <h5 class="card-header">Disconnected sensors remaining in database </h5>
-                        <div class="card-body">
+                        <div class="card-body p-2">
                             <table>
                                 <tr>
                                     <th>Source</th>
@@ -216,15 +216,45 @@
             </div>
 
             <div class="card-deck mt-4" ng-show="loginData.logged">
-                <div class="card">
+                <div class="card flex flex-column justify-content-between">
                     <h5 class="card-header">
-                        Tools
+                        Sync time
                     </h5>
-                    <div class="card-body">    
-                        <h5 class="card-title">Sync time with client</h5>
+                    <div class="card-body p-2">    
                         <p class="card-text">Set time to match current time of client.</p>
-                        <form class="form inline">
+                    </div>
+                    <div class="card-footer p-2">
+                        <form class="form">
                             <input type="button" class="btn btn-primary" value="Update device time to match client" ng-click="updateTime()">
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card flex flex-column justify-content-between">
+                    <h5 class="card-header">
+                        Change password
+                    </h5>
+                    <div class="card-body p-2">
+                        <p class="card-text">Change superuser password.</p>
+                    </div>
+                    <div class="card-footer p-2">
+                        <form class="form">
+                            <input type="button" class="btn btn-primary" value="Change password" ng-click="changePassword()">
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card flex flex-column justify-content-between">
+                    <h5 class="card-header">
+                        Shutdown / restart
+                    </h5>
+                    <div class="card-body p-2">
+                        <p class="card-text">Power off or restart device.</p>
+                    </div>
+                    <div class="card-footer p-2 d-flex justify-content-around">
+                        <form class="form">
+                            <input type="button" class="btn btn-danger" value="Power off" ng-click="powerOff()">
+                            <input type="button" class="btn btn-danger" value="Restart" ng-click="restart()">
                         </form>
                     </div>
                 </div>
