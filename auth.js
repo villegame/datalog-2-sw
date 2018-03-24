@@ -1,6 +1,10 @@
 var db;
 var logger;
 
+var bcrypt = require('bcrypt');
+
+var PASSWORD_FIELD = 'superuser_password';
+
 var init = function (dataBase, log) {
     db = dataBase;
     logger = log;
@@ -8,11 +12,37 @@ var init = function (dataBase, log) {
 
 // TODO: A real password crypting etc
 var checkPassword = function (password, cb) {
-    if (password == 'password') return cb(null, {admin: true});
-    else return cb (new Error("Wrong password"));
+
+    db.query("select settings_value from temp_mon_schema.settings where settings_name=$1;", [PASSWORD_FIELD], function (err, res) {
+        if (err) return cb(err);
+        bcrypt.compare(password, res[0].settings_value, function (err, res) {
+            if(res) return cb(null, {admin: true});
+            else return cb(new Error("Wrong password"));
+        });
+    });    
+};
+
+var superUserExists = function (cb) {
+    db.query("select settings_id from temp_mon_schema.settings where settings_name=$1;", [PASSWORD_FIELD], function (err, res) {
+        if (err) return cb(err);
+        var superUserExists = false;
+        if (res.length > 0) superUserExists = true;
+        return cb (null, {superUserExists: superUserExists });
+    });
+};
+
+var initSuperUser = function (password, cb) {
+    bcrypt.hash(password, 10, function (err, hash) {
+        if (err) return cb(err);
+        db.query("insert into temp_mon_schema.settings (settings_name, settings_value) values ($1, $2);", [PASSWORD_FIELD, hash], function (err, res) {
+            return cb(err);
+        });
+    });
 };
 
 module.exports = {
     init : init,
-    checkPassword : checkPassword
+    checkPassword : checkPassword,
+    superUserExists: superUserExists,
+    initSuperUser: initSuperUser
 };

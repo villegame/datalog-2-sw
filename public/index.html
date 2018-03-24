@@ -21,7 +21,29 @@
 
     <body class="main" ng-controller="mainController">
 
-        <ul class="nav nav-pills nav-fill sticky-top" ng-cloak>
+
+        <div class="container initsuper" ng-show="initSuperUserData.initSuperUser == true" ng-cloak>
+            <div class="login-form">
+                <h2>Set superuser password!</h2>
+                <form>
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="password">Password:</label>
+                        <input class="col-sm-8" type="password" name="password" ng-model="initSuperUserData.password">
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="password-again">Password again:</label>
+                        <input class="col-sm-8" type="password" name="password-again" ng-model="initSuperUserData.passwordAgain">
+                    </div>
+                    <div class="form-group row">
+                        <p class="col-sm-8 errormsg">{{initSuperUserData.error}}</p>
+                        <input type="button" class="btn btn-primary col-sm-4" value="Save" ng-click="initSuperUser(initSuperUserData)">
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+        <ul class="nav nav-pills nav-fill" ng-show="initSuperUserData.initSuperUser == false" ng-cloak>
             <li class="nav-item" ng-show="loginData.logged">
                 <a class="nav-link" href ng-click="logout()">Logout</a>
             </li>
@@ -38,11 +60,11 @@
             <div class="login-form text-center" ng-show="!loginData.logged">
                 <h2>You need to log in to change settings</h2>
                 <form>
-                    <label for=password>Password:</label>
+                    <label for="password">Password:</label>
                     <input type="password" name="password" ng-model="loginData.password">
                     <input type="button" class="btn btn-primary" value="Login" ng-click="login(loginData.password)">
                 </form>
-                <div ng-show="loginData.error">
+                <div class="errormsg" ng-show="loginData.error">
                     <p>{{loginData.error}}</p>
                 </div>
             </div>

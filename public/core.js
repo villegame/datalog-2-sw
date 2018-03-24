@@ -3,6 +3,14 @@ var datalogUi = angular.module('datalogUi', []);
 datalogUi.controller('mainController', ['$scope', '$http', function mainController($scope, $http) {
 
     $scope.view = 'live';
+
+    $scope.initSuperUserData = {
+        initSuperUser: null,
+        password: '', 
+        passwordAgain: '', 
+        error: null
+    };
+
     $scope.loginData = {
         password: null,
         error: null,
@@ -21,9 +29,33 @@ datalogUi.controller('mainController', ['$scope', '$http', function mainControll
         method: 'GET',
         url: '/login'
     }).then(function (res) {
-       $scope.loginData.logged = res.data.logged;
+        $scope.initSuperUserData.initSuperUser = res.data.initSuperUser;
+        $scope.loginData.logged = res.data.logged;
     }, function (err) {
     });
+
+    $scope.initSuperUser = function (data) {
+
+        if (data.password != data.passwordAgain) {
+            $scope.initSuperUserData.error = "Passwords do not match!";
+            return;
+        }
+
+        if (data.password.length < 5) {
+            $scope.initSuperUserData.error = "Password should be 5 or more characters long.";
+            return;
+        }
+
+        $http({
+            method: 'POST',
+            url: '/initsuperuser',
+            data: { password: data.password }
+        }).then(function (res) {
+            $scope.initSuperUserData.initSuperUser = false;
+        }, function (err) {
+            $scope.initSuperUserData.error = err.data.msg;
+        });
+    };
 
     var getSensorData = function () {
         $http({
