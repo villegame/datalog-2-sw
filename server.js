@@ -47,15 +47,26 @@ var start = function (app, http, sensors, auth, logger) {
 
 
     app.post('/initsuperuser', function (req, res) {
-        auth.superUserExists(function (err, resp) {
+
+        if (!req.body.password 
+            || typeof req.body.password != 'string' 
+            || req.body.password.length < 5) {
+            return res.status(400).send({ msg: "Invalid input values." });
+        }
+
+        auth.superUserExists(function (err, sueResp) {
             if (err) {
                 logger.log({ msg: "Error checking super user status.", err: err });
                 res.status(500).send(err);
             }
-            if (resp && !resp.superUserExists) {
-                // TODO: insert superuser password into database
-                console.log("SUPERUSER PASSWORD:", req.body);
-                res.send({ msg: "Superuser created!" });
+            if (sueResp && !sueResp.superUserExists) {
+                auth.initSuperUser(req.body.password, function (err) {
+                    if (err) {
+                        logger.log({ msg: "Error inserting superuser password.", err: err });
+                        res.status(500).send(err);
+                    }
+                    res.send({ msg: "Superuser created!" });
+                });
             }
             else {
                 res.status(403).send({ msg: "Superuser already initialized!" });
