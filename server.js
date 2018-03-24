@@ -31,7 +31,36 @@ var start = function (app, http, sensors, auth, logger) {
 
     app.get('/login', function (req, res) {
 
-        res.send({ logged: isLogged(req) });
+        var response = {
+            initSuperUser : false,
+            logged : false
+        };
+
+        // Check if superuser password has been set
+        auth.superUserExists(function (err, resp) {
+            if (err) logger.log({ msg: "Error checking super user status.", err: err });
+            if (resp && !resp.superUserExists) response.initSuperUser = true;
+            else response.logged = isLogged(req);
+            res.send(response);
+        });
+    });
+
+
+    app.post('/initsuperuser', function (req, res) {
+        auth.superUserExists(function (err, resp) {
+            if (err) {
+                logger.log({ msg: "Error checking super user status.", err: err });
+                res.status(500).send(err);
+            }
+            if (resp && !resp.superUserExists) {
+                // TODO: insert superuser password into database
+                console.log("SUPERUSER PASSWORD:", req.body);
+                res.send({ msg: "Superuser created!" });
+            }
+            else {
+                res.status(403).send({ msg: "Superuser already initialized!" });
+            }
+        });
     });
 
     app.post('/login', function (req, res) {
