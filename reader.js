@@ -105,9 +105,9 @@ var readBme = function (sensors, eSensor, timestamp) {
 
 };
 
-var start = function (http, sensors, log) {
+var start = function (https, sensors, log) {
     logger = log;
-    io = require('socket.io')(http);
+    io = require('socket.io')(https);
 
     setInterval(function () {
 

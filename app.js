@@ -1,12 +1,22 @@
 var app = require('express')();
-var http = require('http').Server(app);
+var https = require('https'); //.Server(app);
 
+var fs = require('fs');
 var reader = require('./reader');
 var db = require('./db');
 var server = require('./server');
 var sensors = require('./sensors');
 var auth = require('./auth');
 var logger = require('./logger');
+
+
+var options = {
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem'),
+    requestCert: false, 
+    rejectUnauthorized: false
+};
+var httpsServer = https.createServer(options, app);
 
 // Init logger
 logger.init();
@@ -15,10 +25,10 @@ logger.init();
 sensors.init(db, logger);
 
 // Start reader
-reader.start(http, sensors, logger);
+reader.start(httpsServer, sensors, logger);
 
 // Start authentication service
 auth.init(db, logger);
 
 // Start web server
-server.start(app, http, sensors, auth, logger);
+server.start(app, httpsServer, sensors, auth, logger);

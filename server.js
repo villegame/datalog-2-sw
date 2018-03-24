@@ -14,7 +14,7 @@ var isAdmin = function (req, res, next) {
     next();
 };
 
-var start = function (app, http, sensors, auth, logger) {
+var start = function (app, https, sensors, auth, logger) {
 
     // index.html will be read from here, no need for app.get('/'...
     app.use(express.static(__dirname + '/public'));
@@ -137,8 +137,12 @@ var start = function (app, http, sensors, auth, logger) {
         });
     });
 
-    http.listen(80, function () {
-        console.log('listening port 80');
+//    http.listen(80, function () {
+//        console.log('listening port 80');
+//    });
+
+    https.listen(443, function () {
+        console.log('listening port 443');
     });
 }
 
