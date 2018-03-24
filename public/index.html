@@ -64,7 +64,7 @@
                     <input type="password" name="password" ng-model="loginData.password">
                     <input type="button" class="btn btn-primary" value="Login" ng-click="login(loginData.password)">
                 </form>
-                <div ng-show="loginData.error">
+                <div class="errormsg" ng-show="loginData.error">
                     <p>{{loginData.error}}</p>
                 </div>
             </div>
