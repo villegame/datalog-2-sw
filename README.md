@@ -189,11 +189,10 @@ Just browse to your RPI's ip address, or if you created wlan-ap connect to the n
 * Also it is good to point out that server.js contains express-session secret for sessions, which should also be changed.
 
 ## TODO
-* Proper superuser authentication instead of current dummy
-* Package manager and or bundler for Web-ui dependancies
-* LCD screen support  
 * Config panel
   * Backend log display tool for ui?
   * Poweroff/reboot button to config-panel
   * Set time window of live graph x-axis
   * Set amount of time how old data will be fetched for graph
+* Package manager and or bundler for Web-ui dependancies
+* LCD screen support
