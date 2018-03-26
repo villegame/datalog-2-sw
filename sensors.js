@@ -14,6 +14,7 @@ var init = function (dataBase, log) {
 var getLocalSensors = function (cb) {
 
     var sensors = [];
+    var errors = [];
 
     async.series([
         function (done) {
@@ -26,11 +27,12 @@ var getLocalSensors = function (cb) {
                     return done(e);
                 }
                 if (output.hasOwnProperty('err')) {
-                    return done(output.err.msg);
-                }
-                output.sensors.forEach(function(sensor) {
-                    sensors.push({type: "1W-TEMP", source: sensor});
-                });
+                    errors.push("1W error: " + output.err.msg);
+                } else {
+                    output.sensors.forEach(function(sensor) {
+                        sensors.push({type: "1W-TEMP", source: sensor});
+                    });
+		        }
                 done();
             });
         },
@@ -44,16 +46,17 @@ var getLocalSensors = function (cb) {
                     return done(e);
                 }
                 if (output.hasOwnProperty('err')) {
-                    return done(output.err.msg);
+                    errors.push("BME-280 error: " + output.err.msg);
+                } else {
+                    sensors.push({type: "BME-280", source: "I2C"});
                 }
-                sensors.push({type: "BME-280", source: "I2C"});
                 done();
 
             });
         }],
         function (err) {
             if (err) logger.log({ msg: "Error getting local sensors.", err: err });
-            cb(err, sensors);
+            cb(err, { locals: sensors, errors: errors });
         }
     );
 };
@@ -145,16 +148,19 @@ var getAllSensors = function (cb) {
     var localSensors = [];
     var storedSensors = [];
 
+    // Is not being sent forward...
+    var localErrors = [];
+
     async.series([
         function (done) {
             getLocalSensors(function (err, res) {
 
                 if (err) return done(err);
-                localSensors = res;
+                localSensors = res.locals;
+                localErrors = res.errors;
                 done();
             });
         }, function (done) {
-
             getSensorsFromDb(function (err, res) {
 
                 if (err) return done(err);
@@ -162,6 +168,7 @@ var getAllSensors = function (cb) {
                 done();
             });
         }], function (err) {
+
             if (err) return cb(err);
 
             var unregisteredSensors = [];
@@ -198,7 +205,6 @@ var getAllSensors = function (cb) {
 
 module.exports = {
     init: init,
-    getLocalSensors: getLocalSensors,
     addSensor: addSensor,
     updateSensor: updateSensor,
     deleteSensor: deleteSensor,
