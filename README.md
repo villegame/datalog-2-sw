@@ -133,6 +133,8 @@ cd datalog-2-sw
 npm install  
 ```
 
+**Notice!** If you are getting "killed" message as result of running npm install, it means you are probably running out of memory. You can try and increase swapfile size by editing /etc/dphys-swapfile and changing CONF_SWAPFILE=100 to something like CONF_SWAPFILE=512. After that reboot and re-run npm install.
+
 ### Setup database
 
 ```
