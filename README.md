@@ -15,9 +15,9 @@ Screenshots:
 [Live graph](https://villegame.files.wordpress.com/2018/03/live1.png)  
 [Configuration](https://villegame.files.wordpress.com/2018/03/config1.png)  
 
-## Use
+## Hardware
 
-Before deploying the software you need to have raspbian jessie installed on your RPI. You will also need to do the wiring with desired components (1-Wire sensors, BME-280 sensor on i2c bus).
+You will need to do the wiring with desired components: 1-Wire sensor(s), BME-280 sensor on i2c bus.
 
 BME-280 module connects to RPI pins as following:  
 
@@ -39,25 +39,33 @@ BME-280 module connects to RPI pins as following:
 **NOTE!** you need to add 4,7kOhm resistor between Voltage and Data pins as illustrated [in here](https://villegame.files.wordpress.com/2018/03/1w.png).  
 You can add several DS1820 sensors parallel to the setup.  
 
-To deploy, follow these steps:
+## Software
 
 ### Raspbian OS
 
-I have tested this on Raspbian Jessie OS. Other Raspbian OSes may or may not work. 
+Write yourself a Raspbian Jessie sd-card for the RPI. Jessie Lite will do perfectly since gui isn't needed. If you don't know any good sd-writer software, use [Etcher](https://etcher.io/). 
+I have tested this on Raspbian Jessie lite. Other Raspbians may or may not work.
 
 ### Raspi-config 
 
-Start configuration tool on terminal:
+On first boot it is recommended to connect at least monitor/tv, keyboard and ethernet cable to RPI.
 
+Login to your pi (username pi, password raspberry) and start configuration tool on terminal:
+
+```
 sudo raspi-config
+```
+
 * Internationalisation Options: Set locales (I used en_US.UTF-8).
-  * In general if you see any python locale warnings including locale names, you should install all locales mentioned in warning.
-  * It is also useful to set the rest of options in this category.
-* Expand filesystem
+  * In general if you see any python locale warnings including locale names, you should install all locales mentioned in warning. Otherwise there is a possibility for database installation to fail.
+  * It is also useful to set the rest of options in internationalisation category.
+* Expand filesystem (just in case, could have been done automatically)
 * Advanced options
   * Enable i2c
   * Enable 1-wire
   * Enable ssh (if you want to connect over network to do the rest)
+
+Finish config and reboot.
 
 ### Install necessary software
 
@@ -80,13 +88,15 @@ It should open psql client, in this case everything is fine, exit by typing:
 exit  
 ```
 
-If you get perl warnings and error, exit by:  
+And continue to install node.js.
+
+If you got perl warnings and error, exit by:  
 
 ```
 exit  
 ```
 
-and fix locale issue by setting locales to en_US.UTF-8 (in this case):  
+and fix locale issue by setting locales to whichever you installed earlier, in this example en_US.UTF-8:  
 
 ```
 export LANGUAGE=en_US.UTF-8  
@@ -102,10 +112,12 @@ after this finish the fix by:
 sudo pg_createcluster 9.4 main --start  
 ```
 
-(this command was suggested by installer if it failed, so check version number there)
+(this command was suggested by failed postgre installer, so check version number there)
 
 
 ### Install node.js for raspberry
+
+To install node.js run following commands:
 
 ```
 cd ~  
@@ -175,7 +187,7 @@ add line:
 
 ### WLAN AP (optional)
 
-The whole device works nicely if you attach wi-fi adapter to it and set it to work as an access point. This way you can access the web-ui wirelessly connecting to the wifi and browsing to the gateway address.
+The whole device works nicely if you attach wi-fi adapter (unless your raspberry has built in wlan like models 3 and Zero W) to it and set it to work as an access point. This way you can access the web-ui wirelessly connecting to the wifi and browsing to the gateway address.
 Instructions [here](https://learn.adafruit.com/setting-up-a-raspberry-pi-as-a-wifi-access-point/install-software).
 
 ### System on-led and poweroff button (optional)
@@ -187,8 +199,7 @@ It is also quite practical to have a poweroff button for RPI simply because no o
 Just browse to your RPI's ip address, or if you created wlan-ap connect to the network and direct your browser to the gateway.
 
 **NOTE!**
-* So far the hardcoded password for configuration is 'password'.
-* Also it is good to point out that server.js contains express-session secret for sessions, which should also be changed.
+* server.js contains express-session secret for sessions, which should be changed
 
 ## TODO
 * Config panel
@@ -196,5 +207,5 @@ Just browse to your RPI's ip address, or if you created wlan-ap connect to the n
   * Poweroff/reboot button to config-panel
   * Set time window of live graph x-axis
   * Set amount of time how old data will be fetched for graph
-* Package manager and or bundler for Web-ui dependancies
+* Use package manager to manage Web-ui dependancies
 * LCD screen support
