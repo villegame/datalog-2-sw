@@ -48,7 +48,7 @@ I have tested this on Raspbian Jessie lite. Other Raspbians may or may not work.
 
 ### Raspi-config 
 
-On first boot it is recommended to connect at least monitor/tv, keyboard and ethernet cable to RPI.
+On first boot it is recommended to connect at least monitor/tv, keyboard and ethernet cable to RPI. If you're using RPI Zero, connect just monitor and keyboard. After running configuration tool and rebooting you should be able to switch usb keyboard to ethernet adapter to do the rest over ssh in your LAN using ssh or putty for example.
 
 Login to your pi (username pi, password raspberry) and start configuration tool on terminal:
 
