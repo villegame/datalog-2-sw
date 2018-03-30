@@ -39,16 +39,24 @@ BME-280 module connects to RPI pins as following:
 **NOTE!** you need to add 4,7kOhm resistor between Voltage and Data pins as illustrated [in here](https://villegame.files.wordpress.com/2018/03/1w.png).  
 You can add several DS1820 sensors parallel to the setup.  
 
+With RPi zero these items might come in handy: 
+* micro usb male to usb female adapter
+* usb to ethernet adapter
+* mini hdmi male to hdmi female adapter
+
 ## Software
 
 ### Raspbian OS
 
-Write yourself a Raspbian Jessie sd-card for the RPI. Jessie Lite will do perfectly since gui isn't needed. If you don't know any good sd-writer software, use [Etcher](https://etcher.io/). 
-I have tested this on Raspbian Jessie lite. Other Raspbians may or may not work.
+Make a Raspbian Jessie or Stretch sd-card for the RPI. Lite version will do perfectly since gui isn't needed. If you don't know any good sd-writer software, use [Etcher](https://etcher.io/). 
+
+**Notice** For RPi Zero W model it is recommended to use Raspbian Stretch, for the on-board wifi to work. I've tested other RPi models with Jessie.
 
 ### Raspi-config 
 
 On first boot it is recommended to connect at least monitor/tv, keyboard and ethernet cable to RPI. If you're using RPI Zero, connect just monitor and keyboard. After running configuration tool and rebooting you should be able to switch usb keyboard to ethernet adapter to do the rest over ssh in your LAN using ssh or putty for example.
+
+**Notice** You can also enable ssh by creating an empty file named 'ssh' on boot partition of sd-card. This makes installing on RPi Zero easier.
 
 Login to your pi (username pi, password raspberry) and start configuration tool on terminal:
 
@@ -56,11 +64,11 @@ Login to your pi (username pi, password raspberry) and start configuration tool 
 sudo raspi-config
 ```
 
-* Internationalisation Options: Set locales (I used en_US.UTF-8).
+* Internationalisation Options (localisation in Stretch): Set locales (I used en_US.UTF-8).
   * In general if you see any python locale warnings including locale names, you should install all locales mentioned in warning. Otherwise there is a possibility for database installation to fail.
   * It is also useful to set the rest of options in internationalisation category.
 * Expand filesystem (just in case, could have been done automatically)
-* Advanced options
+* Advanced options (interfacing in Stretch)
   * Enable i2c
   * Enable 1-wire
   * Enable ssh (if you want to connect over network to do the rest)
@@ -188,7 +196,9 @@ add line:
 ### WLAN AP (optional)
 
 The whole device works nicely if you attach wi-fi adapter (unless your raspberry has built in wlan like models 3 and Zero W) to it and set it to work as an access point. This way you can access the web-ui wirelessly connecting to the wifi and browsing to the gateway address.
-Instructions [here](https://learn.adafruit.com/setting-up-a-raspberry-pi-as-a-wifi-access-point/install-software).
+
+Instructions [For Raspbian Jessie](https://learn.adafruit.com/setting-up-a-raspberry-pi-as-a-wifi-access-point/install-software).  
+And for [Raspbian Stretch](https://www.raspberrypi.org/documentation/configuration/wireless/access-point.md).
 
 ### System on-led and poweroff button (optional)
 
