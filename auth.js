@@ -10,7 +10,6 @@ var init = function (dataBase, log) {
     logger = log;
 };
 
-// TODO: A real password crypting etc
 var checkPassword = function (password, cb) {
 
     db.query("select settings_value from temp_mon_schema.settings where settings_name=$1;", [PASSWORD_FIELD], function (err, res) {
@@ -19,7 +18,7 @@ var checkPassword = function (password, cb) {
             if(res) return cb(null, {admin: true});
             else return cb(new Error("Wrong password"));
         });
-    });    
+    });
 };
 
 var superUserExists = function (cb) {
@@ -40,9 +39,22 @@ var initSuperUser = function (password, cb) {
     });
 };
 
+var changeSuperUserPassword = function (data, cb) {
+    checkPassword(data.currentPassword, function (err) {
+        if (err) return cb(err);
+        bcrypt.hash(data.newPassword, 10, function (err, hash) {
+            if (err) return cb(err);
+            db.query("update temp_mon_schema.settings set $1 = $2;", [PASSWORD_FIELD, hash], function (err, res) {
+                return cb(err);
+            });
+        });
+    });
+};
+
 module.exports = {
     init : init,
     checkPassword : checkPassword,
     superUserExists: superUserExists,
-    initSuperUser: initSuperUser
+    initSuperUser: initSuperUser,
+    changeSuperUserPassword: changeSuperUserPassword
 };
