@@ -74,6 +74,27 @@ var start = function (app, http, sensors, tools,  auth, logger) {
         });
     });
 
+    app.post('/changepassword', function (req, res) {
+
+        if (!req.body.currentPassword
+            || typeof req.body.currentPassword != 'string'
+            || !req.body.newPassword
+            || typeof req.body.newPassword != 'string'
+            || req.body.newPassword.length < 5) {
+            return res.status(400).send({ msg: "Invalid input values." });
+        }
+
+        auth.changeSuperUserPassword({ currentPassword: req.body.currentPassword, newPassword: req.body.newPassword }, function (err, cResp) {
+            if (err) {
+                logger.log({ msg: "Error updating superuser password", err: err });
+                res.status(500).send(err);
+            } else {
+                res.send({ msg: "Password updated!" });
+            }
+        });
+
+    });
+
     app.post('/login', function (req, res) {
 
         auth.checkPassword(req.body.password, function (err, response) {
@@ -165,10 +186,17 @@ var start = function (app, http, sensors, tools,  auth, logger) {
         });
     });
 
-    app.post('/tools/time', isAdmin, function (req, res) {
-        if (typeof req.body.time !== 'number') return res.status(400).send("Invalid input values.");
+    app.post('/tools/sys', isAdmin, function (req, res) {
 
-        tools.setDateTime({ time : req.body.time }, function (err) {
+        if (!req.body.operation || typeof req.body.operation != 'string') return res.status(400).send("Invalid input values.");
+        if (req.body.operation != "setDate" && req.body.operation != "reboot" && req.body.operation != "shutdown") return res.status(400).send("Invalid operation.");
+
+        if (req.body.operation == "setDate" && typeof req.body.params !== 'number') return res.status(400).send("Invalid input values.");
+
+        console.log("OPERATION: ", req.body.operation);
+        console.log("PARAMS: ", req.body.params);
+
+        tools.runSystemOperation({ operation : req.body.operation, params : req.body.params }, function (err) {
             if (err) return res.status(500).send(err);
             return res.status(200).send({ msg: "ok" });
         });
