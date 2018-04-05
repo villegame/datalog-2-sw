@@ -84,15 +84,19 @@ var start = function (app, http, sensors, tools,  auth, logger) {
             return res.status(400).send({ msg: "Invalid input values." });
         }
 
-        auth.changeSuperUserPassword({ currentPassword: req.body.currentPassword, newPassword: req.body.newPassword }, function (err, cResp) {
-            if (err) {
-                logger.log({ msg: "Error updating superuser password", err: err });
-                res.status(500).send(err);
-            } else {
-                res.send({ msg: "Password updated!" });
-            }
-        });
 
+        auth.checkPassword(req.body.currentPassword, function (err, pResp) {
+            if (err) return res.status(401).send({ msg: "Incorrect password" });
+
+            auth.changeSuperUserPassword({ currentPassword: req.body.currentPassword, newPassword: req.body.newPassword }, function (err, cResp) {
+                if (err) {
+                    logger.log({ msg: "Error updating superuser password", err: err });
+                    res.status(500).send(err);
+                } else {
+                    res.send({ msg: "Password updated!" });
+                }
+            });
+        });
     });
 
     app.post('/login', function (req, res) {
