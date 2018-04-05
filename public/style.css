@@ -69,7 +69,7 @@ body.main {
     visibility: hidden;
 }
 
-.login-form {
+.form-dialog {
     position: fixed;
     width: 50%;
     height: 300px; 
