@@ -5,7 +5,7 @@ datalogUi.controller('mainController', ['$scope', '$http', function mainControll
     $scope.view = 'live';
 
     $scope.changePassword = {
-        showDialog: false,
+        showDialog: null,
         currentPassword: '',
         newPassword: '',
         newPasswordAgain: '',
@@ -66,6 +66,12 @@ datalogUi.controller('mainController', ['$scope', '$http', function mainControll
     };
 
     $scope.changePassword = function (data) {
+
+        if (!data.currentPassword) {
+            $scope.changePassword.error = "Give current password.";
+            return;
+        }
+
         if (data.newPassword != data.newPasswordAgain) {
             $scope.changePassword.error = "New passwords do not match!";
             return;
@@ -83,11 +89,20 @@ datalogUi.controller('mainController', ['$scope', '$http', function mainControll
                     newPassword: data.newPassword
                 }
         }).then(function (res) {
+            $scope.changePassword.currentPassword = '';
+            $scope.changePassword.newPassword = '';
+            $scope.changePassword.newPasswordAgain = '';
             $scope.changePassword.showDialog = false;
         }, function (err) {
-            console.log("ERRORI", err);
             $scope.changePassword.error = err.data.msg;
         });
+    };
+
+    $scope.changePasswordClose = function () {
+        $scope.changePassword.currentPassword = '';
+        $scope.changePassword.newPassword = '';
+        $scope.changePassword.newPasswordAgain = '';
+        $scope.changePassword.showDialog = false;
     };
 
     $scope.changePasswordBtn = function () {
@@ -143,7 +158,6 @@ datalogUi.controller('mainController', ['$scope', '$http', function mainControll
         });
     };
 
-    // delete a todo after checking it
     $scope.deleteSensor = function (sensor) {
         $scope.sensorData.fetched = false;
         $http({
@@ -164,7 +178,6 @@ datalogUi.controller('mainController', ['$scope', '$http', function mainControll
             data: { password: $scope.loginData.password }
         }).then(function (res) {
             if(res.status == 202) {
-                //$scope.loginData.showWindow = false;
                 $scope.loginData.error = null;
                 $scope.loginData.password = null;
                 $scope.loginData.logged = true;
