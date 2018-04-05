@@ -21,8 +21,7 @@
 
     <body class="main" ng-controller="mainController">
 
-
-        <div class="container initsuper" ng-show="initSuperUserData.initSuperUser == true" ng-cloak>
+        <div class="container dialog-bg" ng-show="initSuperUserData.initSuperUser == true" ng-cloak>
             <div class="form-dialog">
                 <h2>Set superuser password!</h2>
                 <form>
@@ -42,8 +41,8 @@
             </div>
         </div>
 
-        <div class="container changepassword" ng-show="changePassword.showDialog == true" ng-cloak>
-            <div class="form-dialog">
+        <div class="container dialog-bg" ng-show="changePassword.showDialog == true" ng-cloak>
+            <div class="form-dialog text-center">
                 <h2>Change password!</h2>
                 <form>
                     <div class="form-group row">
@@ -58,9 +57,10 @@
                         <label class="col-sm-4 col-form-label" for="newPasswordAgain">New password again:</label>
                         <input class="col-sm-8" type="password" name="newPasswordAgain" ng-model="changePassword.newPasswordAgain">
                     </div>
-                    <div class="form-group row">
-                        <p class="col-sm-8 errormsg">{{changePassword.error}}</p>
-                        <input type="button" class="btn btn-primary col-sm-4" value="Save" ng-click="changePassword(changePassword)">
+                    <div class="form-group row justify-content-around">
+                        <p class="col-sm-4 errormsg">{{changePassword.error}}</p>
+                        <input type="button" class="btn btn-primary col-sm-3" value="Save" ng-click="changePassword(changePassword)">
+                        <input type="button" class="btn btn-danger col-sm-3" value="Close" ng-click="changePasswordClose()">
                     </div>
                 </form>
             </div>
