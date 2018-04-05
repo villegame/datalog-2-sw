@@ -40,13 +40,10 @@ var initSuperUser = function (password, cb) {
 };
 
 var changeSuperUserPassword = function (data, cb) {
-    checkPassword(data.currentPassword, function (err) {
+    bcrypt.hash(data.newPassword, 10, function (err, hash) {
         if (err) return cb(err);
-        bcrypt.hash(data.newPassword, 10, function (err, hash) {
-            if (err) return cb(err);
-            db.query("update temp_mon_schema.settings set $1 = $2;", [PASSWORD_FIELD, hash], function (err, res) {
-                return cb(err);
-            });
+        db.query("update temp_mon_schema.settings set settings_value = $2 where settings_name = $1;", [PASSWORD_FIELD, hash], function (err, res) {
+            return cb(err);
         });
     });
 };
