@@ -4,10 +4,18 @@ datalogUi.controller('mainController', ['$scope', '$http', function mainControll
 
     $scope.view = 'live';
 
+    $scope.changePassword = {
+        showDialog: false,
+        currentPassword: '',
+        newPassword: '',
+        newPasswordAgain: '',
+        error: null
+    };
+
     $scope.initSuperUserData = {
         initSuperUser: null,
-        password: '', 
-        passwordAgain: '', 
+        password: '',
+        passwordAgain: '',
         error: null
     };
 
@@ -55,6 +63,35 @@ datalogUi.controller('mainController', ['$scope', '$http', function mainControll
         }, function (err) {
             $scope.initSuperUserData.error = err.data.msg;
         });
+    };
+
+    $scope.changePassword = function (data) {
+        if (data.newPassword != data.newPasswordAgain) {
+            $scope.changePassword.error = "New passwords do not match!";
+            return;
+        }
+
+        if (data.newPassword.length < 5) {
+            $scope.changePassword.error = "New password should be 5 or more characters long.";
+            return;
+        }
+
+        $http({
+            method: 'POST',
+            url: '/changepassword',
+            data: { currentPassword: data.currentPassword,
+                    newPassword: data.newPassword
+                }
+        }).then(function (res) {
+            $scope.changePassword.showDialog = false;
+        }, function (err) {
+            console.log("ERRORI", err);
+            $scope.changePassword.error = err.data.msg;
+        });
+    };
+
+    $scope.changePasswordBtn = function () {
+        $scope.changePassword.showDialog = true;
     };
 
     var getSensorData = function () {
@@ -152,10 +189,37 @@ datalogUi.controller('mainController', ['$scope', '$http', function mainControll
     };
 
     $scope.updateTime = function () {
+        console.log("update");
         $http({
             method: 'POST',
-            url: '/tools/time',
-            data: { time: parseInt(Date.now()/1000) }
+            url: '/tools/sys',
+            data: { operation: "setDate", params: parseInt(Date.now()/1000) }
+        }).then(function (res) {
+            console.log("RES", res);
+        }, function (err) {
+            console.log("ERR", err);
+        });
+    };
+
+    $scope.reboot = function () {
+        console.log("reboot");
+        $http({
+            method: 'POST',
+            url: '/tools/sys',
+            data: { operation: 'reboot' }
+        }).then(function (res) {
+            console.log("RES", res);
+        }, function (err) {
+            console.log("ERR", err);
+        });
+    };
+
+    $scope.shutdown = function () {
+        console.log("shutdown");
+        $http({
+            method: 'POST',
+            url: '/tools/sys',
+            data: { operation: 'shutdown' }
         }).then(function (res) {
             console.log("RES", res);
         }, function (err) {
