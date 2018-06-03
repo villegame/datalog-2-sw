@@ -65,7 +65,7 @@ sudo raspi-config
 ```
 
 * Internationalisation Options (localisation in Stretch): Set locales (I used en_US.UTF-8).
-  * In general if you see any python locale warnings including locale names, you should install all locales mentioned in warning. Otherwise there is a possibility for database installation to fail.
+  * In general if you see any perl locale warnings including locale names, you should install all locales mentioned in warning. Otherwise there is a possibility for database installation to fail.
   * It is also useful to set the rest of options in internationalisation category.
 * Expand filesystem (just in case, could have been done automatically)
 * Advanced options (interfacing in Stretch)
