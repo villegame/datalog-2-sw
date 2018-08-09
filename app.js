@@ -15,7 +15,7 @@ logger.init();
 // Init sensors
 sensors.init(db, logger);
 
-// Init charts
+// Init tools
 tools.init(db, logger);
 
 // Start reader
