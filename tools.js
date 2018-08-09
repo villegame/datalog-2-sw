@@ -40,7 +40,7 @@ var setDateTime = function (time, cb) {
 };
 
 var reboot = function (cb) {
-    exec('reboot', function (err, stdout, stderr) {
+    exec('/sbin/reboot', function (err, stdout, stderr) {
         if(err) {
             logger.log({ msg: "Error rebooting system.", err: err });
         } else console.log("REBOOTING");
@@ -49,7 +49,7 @@ var reboot = function (cb) {
 };
 
 var shutdown = function (cb) {
-    exec('shutdown -h now', function (err, stdout, stderr) {
+    exec('/sbin/shutdown -h now', function (err, stdout, stderr) {
         if(err) {
             logger.log({ msg: "Error shutting system down.", err: err });
         } else console.log("SHUTTING DOWN");
