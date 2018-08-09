@@ -4,10 +4,18 @@ datalogUi.controller('mainController', ['$scope', '$http', function mainControll
 
     $scope.view = 'live';
 
+    $scope.changePassword = {
+        showDialog: null,
+        currentPassword: '',
+        newPassword: '',
+        newPasswordAgain: '',
+        error: null
+    };
+
     $scope.initSuperUserData = {
         initSuperUser: null,
-        password: '', 
-        passwordAgain: '', 
+        password: '',
+        passwordAgain: '',
         error: null
     };
 
@@ -22,6 +30,13 @@ datalogUi.controller('mainController', ['$scope', '$http', function mainControll
         unregisteredSensors : [],
         registeredSensors : [],
         removedSensors : []
+    };
+
+    $scope.newSensor = {
+        source: '',
+        type: '',
+        name: '',
+        color: 'red'
     };
 
     // Get login status for displaying logout button
@@ -55,6 +70,50 @@ datalogUi.controller('mainController', ['$scope', '$http', function mainControll
         }, function (err) {
             $scope.initSuperUserData.error = err.data.msg;
         });
+    };
+
+    $scope.changePassword = function (data) {
+
+        if (!data.currentPassword) {
+            $scope.changePassword.error = "Give current password.";
+            return;
+        }
+
+        if (data.newPassword != data.newPasswordAgain) {
+            $scope.changePassword.error = "New passwords do not match!";
+            return;
+        }
+
+        if (data.newPassword.length < 5) {
+            $scope.changePassword.error = "New password should be 5 or more characters long.";
+            return;
+        }
+
+        $http({
+            method: 'POST',
+            url: '/changepassword',
+            data: { currentPassword: data.currentPassword,
+                    newPassword: data.newPassword
+                }
+        }).then(function (res) {
+            $scope.changePassword.currentPassword = '';
+            $scope.changePassword.newPassword = '';
+            $scope.changePassword.newPasswordAgain = '';
+            $scope.changePassword.showDialog = false;
+        }, function (err) {
+            $scope.changePassword.error = err.data.msg;
+        });
+    };
+
+    $scope.changePasswordClose = function () {
+        $scope.changePassword.currentPassword = '';
+        $scope.changePassword.newPassword = '';
+        $scope.changePassword.newPasswordAgain = '';
+        $scope.changePassword.showDialog = false;
+    };
+
+    $scope.changePasswordBtn = function () {
+        $scope.changePassword.showDialog = true;
     };
 
     var getSensorData = function () {
@@ -106,7 +165,6 @@ datalogUi.controller('mainController', ['$scope', '$http', function mainControll
         });
     };
 
-    // delete a todo after checking it
     $scope.deleteSensor = function (sensor) {
         $scope.sensorData.fetched = false;
         $http({
@@ -127,7 +185,6 @@ datalogUi.controller('mainController', ['$scope', '$http', function mainControll
             data: { password: $scope.loginData.password }
         }).then(function (res) {
             if(res.status == 202) {
-                //$scope.loginData.showWindow = false;
                 $scope.loginData.error = null;
                 $scope.loginData.password = null;
                 $scope.loginData.logged = true;
@@ -148,6 +205,45 @@ datalogUi.controller('mainController', ['$scope', '$http', function mainControll
             $scope.view = 'live';
         }, function (err) {
             console.log("error logging out ", err);
+        });
+    };
+
+    $scope.updateTime = function () {
+        console.log("update");
+        $http({
+            method: 'POST',
+            url: '/tools/sys',
+            data: { operation: "setDate", params: parseInt(Date.now()/1000) }
+        }).then(function (res) {
+            console.log("RES", res);
+        }, function (err) {
+            console.log("ERR", err);
+        });
+    };
+
+    $scope.reboot = function () {
+        console.log("reboot");
+        $http({
+            method: 'POST',
+            url: '/tools/sys',
+            data: { operation: 'reboot' }
+        }).then(function (res) {
+            console.log("RES", res);
+        }, function (err) {
+            console.log("ERR", err);
+        });
+    };
+
+    $scope.shutdown = function () {
+        console.log("shutdown");
+        $http({
+            method: 'POST',
+            url: '/tools/sys',
+            data: { operation: 'shutdown' }
+        }).then(function (res) {
+            console.log("RES", res);
+        }, function (err) {
+            console.log("ERR", err);
         });
     };
 

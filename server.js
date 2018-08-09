@@ -14,7 +14,7 @@ var isAdmin = function (req, res, next) {
     next();
 };
 
-var start = function (app, http, sensors, auth, logger) {
+var start = function (app, http, sensors, tools,  auth, logger) {
 
     // index.html will be read from here, no need for app.get('/'...
     app.use(express.static(__dirname + '/public'));
@@ -71,6 +71,31 @@ var start = function (app, http, sensors, auth, logger) {
             else {
                 res.status(403).send({ msg: "Superuser already initialized!" });
             }
+        });
+    });
+
+    app.post('/changepassword', function (req, res) {
+
+        if (!req.body.currentPassword
+            || typeof req.body.currentPassword != 'string'
+            || !req.body.newPassword
+            || typeof req.body.newPassword != 'string'
+            || req.body.newPassword.length < 5) {
+            return res.status(400).send({ msg: "Invalid input values." });
+        }
+
+
+        auth.checkPassword(req.body.currentPassword, function (err, pResp) {
+            if (err) return res.status(401).send({ msg: "Incorrect password" });
+
+            auth.changeSuperUserPassword({ currentPassword: req.body.currentPassword, newPassword: req.body.newPassword }, function (err, cResp) {
+                if (err) {
+                    logger.log({ msg: "Error updating superuser password", err: err });
+                    res.status(500).send(err);
+                } else {
+                    res.send({ msg: "Password updated!" });
+                }
+            });
         });
     });
 
@@ -162,6 +187,22 @@ var start = function (app, http, sensors, auth, logger) {
                 if (err) return res.status(500).send({ msg: "Error getting sensors." });
                 res.send(sensors);
             });
+        });
+    });
+
+    app.post('/tools/sys', isAdmin, function (req, res) {
+
+        if (!req.body.operation || typeof req.body.operation != 'string') return res.status(400).send("Invalid input values.");
+        if (req.body.operation != "setDate" && req.body.operation != "reboot" && req.body.operation != "shutdown") return res.status(400).send("Invalid operation.");
+
+        if (req.body.operation == "setDate" && typeof req.body.params !== 'number') return res.status(400).send("Invalid input values.");
+
+        console.log("OPERATION: ", req.body.operation);
+        console.log("PARAMS: ", req.body.params);
+
+        tools.runSystemOperation({ operation : req.body.operation, params : req.body.params }, function (err) {
+            if (err) return res.status(500).send(err);
+            return res.status(200).send({ msg: "ok" });
         });
     });
 

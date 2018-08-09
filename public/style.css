@@ -69,7 +69,7 @@ body.main {
     visibility: hidden;
 }
 
-.login-form {
+.form-dialog {
     position: fixed;
     width: 50%;
     height: 300px; 
@@ -80,8 +80,7 @@ body.main {
     background-color: white;
 }
 
-
-.initsuper {
+.dialog-bg {
     position: fixed;
     width: 100%;
     height: 100vh;
