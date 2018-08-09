@@ -32,6 +32,13 @@ datalogUi.controller('mainController', ['$scope', '$http', function mainControll
         removedSensors : []
     };
 
+    $scope.newSensor = {
+        source: '',
+        type: '',
+        name: '',
+        color: 'red'
+    };
+
     // Get login status for displaying logout button
     $http({
         method: 'GET',
