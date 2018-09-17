@@ -70,11 +70,14 @@
             <li class="nav-item" ng-show="loginData.logged">
                 <a class="nav-link" href ng-click="logout()">Logout</a>
             </li>
-                <li class="nav-item">
+            <li class="nav-item">
                 <a class="nav-link {{view=='config'?'active':''}}" href ng-click="changeView('config')">Configure</a>
             </li>
-                <li class="nav-item">
+            <li class="nav-item">
                 <a class="nav-link {{view=='live'?'active':''}}" href ng-click="changeView('live')">LIVE!</a>
+            </li>
+            <li class="nav-item col-sm-2">
+                <a class="nav-link">Battery: {{batteryVoltage}}%</a>
             </li>
         </ul>
 
@@ -290,9 +293,16 @@
                 <div id="tempgraph" class="col-sm-12"></div>
             </div>
             <div class="row">
+                <div id="humgraph" class="col-sm-12"></div>
+            </div>
+            <div class="row">
+                <div id="presgraph" class="col-sm-12"></div>
+            </div>
+
+            <!-- <div class="row">
                 <div id="humgraph" class="col-md-6"></div>
                 <div id="presgraph" class="col-md-6"></div>
-            </div>
+            </div> -->
 
             <script>
 
