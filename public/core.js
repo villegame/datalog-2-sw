@@ -39,7 +39,7 @@ datalogUi.controller('mainController', ['$scope', '$http', '$interval', function
         color: 'red'
     };
 
-    $scope.batteryVoltage = 0.0;
+    $scope.batteryVoltage = null;
 
     // set battery value in precentages
     var setVoltage = function (voltage) {
@@ -59,7 +59,7 @@ datalogUi.controller('mainController', ['$scope', '$http', '$interval', function
             var voltage = parseFloat(JSON.parse(res.data));
             setVoltage(voltage);
         }, function (err) {
-            //console.log("ERR"+err);
+            $scope.batteryVoltage = null;
         });
     };
 

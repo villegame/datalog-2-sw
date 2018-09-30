@@ -77,7 +77,7 @@
                 <a class="nav-link {{view=='live'?'active':''}}" href ng-click="changeView('live')">LIVE!</a>
             </li>
             <li class="nav-item col-sm-2">
-                <a class="nav-link">Battery: {{batteryVoltage}}%</a>
+                <a class="nav-link" ng-show="batteryVoltage != null">Battery: {{batteryVoltage}}%</a>
             </li>
         </ul>
 
