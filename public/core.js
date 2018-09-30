@@ -1,6 +1,6 @@
 var datalogUi = angular.module('datalogUi', []);
 
-datalogUi.controller('mainController', ['$scope', '$http', function mainController($scope, $http) {
+datalogUi.controller('mainController', ['$scope', '$http', '$interval', function mainController($scope, $http, $interval) {
 
     $scope.view = 'live';
 
@@ -38,6 +38,35 @@ datalogUi.controller('mainController', ['$scope', '$http', function mainControll
         name: '',
         color: 'red'
     };
+
+    $scope.batteryVoltage = null;
+
+    // set battery value in precentages
+    var setVoltage = function (voltage) {
+        var value = voltage - 2.42;
+        value = (value / 0.58)*100;
+        if(value > 100) value = 100.00;
+        if(value < 0) value = 0.00;
+        $scope.batteryVoltage = parseInt(value,10);
+    };
+
+    // get battery voltage
+    var getBattery = function () {
+        $http({
+            method: 'GET',
+            url: '/battery'
+        }).then(function (res) {
+            var voltage = parseFloat(JSON.parse(res.data));
+            setVoltage(voltage);
+        }, function (err) {
+            $scope.batteryVoltage = null;
+        });
+    };
+
+    getBattery();
+
+    // get battery value every 30 seconds
+    $interval(getBattery, 30000);
 
     // Get login status for displaying logout button
     $http({

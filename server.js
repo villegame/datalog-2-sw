@@ -4,6 +4,8 @@ var bodyParser = require('body-parser');
 var async = require('async');
 var methodOverride = require('method-override');
 
+var fs = require('fs');
+
 var isLogged = function (req) {
     if(!req.session || !req.session.admin) return false;
     return true;
@@ -216,6 +218,17 @@ var start = function (app, http, sensors, tools,  auth, logger) {
                 return res.status(400).send(e);
             }
         });
+    });
+
+    app.get('/battery', function (req, res) {
+        fs.readFile('/tmp/battery_voltage', 'utf8', function (err, data) {
+	    if (err) return res.status(500).send(err);
+	    try {
+		res.send(JSON.stringify(data));
+	    } catch (e) {
+		return res.status(400).send(e);
+	    }
+	});
     });
 
     http.listen(80, function () {
