@@ -61,8 +61,8 @@ var LineChart = function () {
 					.append('div')
 					.style({
 						width: '100%',
-						height: '45vh',
-						'min-height': '400px'
+						height: '40vh',
+						'min-height': '380px'
 					});
 				gd = gd3.node();
 		
@@ -83,7 +83,7 @@ var LineChart = function () {
 		traceOrders.forEach(function(trace) {
 			if(trace.id == data.id && data.hasOwnProperty(property)) {
 				var time = data.time;
-				var startTime = time - (30*60*1000);
+				var startTime = time - (120*60*1000);
 				var minuteView = {
 					xaxis : {
 						type: 'date',
