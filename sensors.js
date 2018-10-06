@@ -64,7 +64,7 @@ var getLocalSensors = function (cb) {
 // Database functions:
 
 var getSensorsFromDb = function (cb) {
-    db.query("select devices_id, devices_type, devices_name, devices_source, devices_enabled, devices_color, devices_screen, devices_screen_order from temp_mon_schema.devices order by devices_id;", [], cb);
+    db.query("select devices_id, devices_type, devices_name, devices_source, devices_enabled, devices_color, devices_screen, devices_screen_order, devices_temp_offset, devices_hum_offset, devices_pres_offset from temp_mon_schema.devices order by devices_id;", [], cb);
 };
 
 var addSensor = function (data, cb) {
@@ -80,7 +80,7 @@ var deleteSensor = function (data, cb) {
 };
 
 var getEnabledSensors = function (cb) {
-    db.query("select devices_id, devices_name, devices_source, devices_type, devices_color from temp_mon_schema.devices where devices_enabled=true order by devices_id;", [], cb);
+    db.query("select devices_id, devices_name, devices_source, devices_type, devices_color, devices_temp_offset, devices_hum_offset, devices_pres_offset from temp_mon_schema.devices where devices_enabled=true order by devices_id;", [], cb);
 };
 
 var addValues = function (data, cb) {
@@ -102,6 +102,9 @@ var getValues = function (cb) {
                         name: device.devices_name,
                         type: device.devices_type,
                         color: device.devices_color,
+                        tempOffset: device.devices_temp_offset,
+                        humOffset: device.devices_hum_offset,
+                        presOffset: device.devices_pres_offset,
                         time: []
                     };
                     if(newDevice.type == '1W-TEMP') {
@@ -123,11 +126,11 @@ var getValues = function (cb) {
                     values.forEach(function(value) {
                         data['time'].push(value.values_time);
                         if(data.type == '1W-TEMP') {
-                            data['temperature'].push(value.values_temperature);
+                            data['temperature'].push(value.values_temperature + data.tempOffset);
                         } else if (data.type == 'BME-280') {
-                            data['temperature'].push(value.values_temperature);
-                            data['humidity'].push(value.values_humidity);
-                            data['pressure'].push(value.values_pressure);
+                            data['temperature'].push(value.values_temperature + data.tempOffset);
+                            data['humidity'].push(value.values_humidity + data.humOffset);
+                            data['pressure'].push(value.values_pressure + data.presOffset);
                         }
                     });
                     return callback();
