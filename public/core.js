@@ -26,17 +26,17 @@ datalogUi.controller('mainController', ['$scope', '$http', '$interval', function
     };
 
     $scope.sensorData = {
-        fetched : false,
-        unregisteredSensors : [],
-        registeredSensors : [],
-        removedSensors : []
+        fetched: false,
+        unregisteredSensors: [],
+        registeredSensors: [],
+        removedSensors: []
     };
 
-    $scope.newSensor = {
-        source: '',
-        type: '',
-        name: '',
-        color: 'red'
+    $scope.dialogs = {
+        deleteConfirm: false,
+        deleteSensor: null,
+        clearConfirm: false,
+        clearSensor: null
     };
 
     $scope.batteryVoltage = null;
@@ -145,15 +145,32 @@ datalogUi.controller('mainController', ['$scope', '$http', '$interval', function
         $scope.changePassword.showDialog = true;
     };
 
+    var prepareSensorList = function (sensors) {
+        sensors.forEach(function (sensor, i, array) {
+            if(!sensor.hasOwnProperty("devices_color")) {
+                // set default color for unregistered sensor
+                array[i].color = 'red';
+            }
+            array[i].devices_temp_offset = parseFloat(sensor.devices_temp_offset);
+            array[i].devices_hum_offset = parseFloat(sensor.devices_hum_offset);
+            array[i].devices_pres_offset = parseFloat(sensor.devices_pres_offset);
+        });
+        return sensors;
+    }
+
+    var updateSensorLists = function (sensorLists) {
+        $scope.sensorData.unregisteredSensors = prepareSensorList(sensorLists.unregisteredSensors);
+        $scope.sensorData.registeredSensors = prepareSensorList(sensorLists.registeredSensors);
+        $scope.sensorData.removedSensors = prepareSensorList(sensorLists.removedSensors);
+        $scope.sensorData.fetched = true;
+    };
+
     var getSensorData = function () {
         $http({
             method: 'GET',
             url: '/sensors'
         }).then(function (res) {
-            $scope.sensorData.unregisteredSensors = res.data.unregisteredSensors;
-            $scope.sensorData.registeredSensors = res.data.registeredSensors;
-            $scope.sensorData.removedSensors = res.data.removedSensors;
-            $scope.sensorData.fetched = true;
+            updateSensorLists(res.data);
         }, function (err) {
         });
     };
@@ -173,10 +190,9 @@ datalogUi.controller('mainController', ['$scope', '$http', '$interval', function
             url: '/sensors',
             data: sensor
         }).then(function (res) {
-            $scope.sensorData.unregisteredSensors = res.data.unregisteredSensors;
-            $scope.sensorData.registeredSensors = res.data.registeredSensors;
-            $scope.sensorData.fetched = true;
+            updateSensorLists(res.data);
         }, function (err) {
+            console.log("nope", err);
         });
     };
 
@@ -187,22 +203,61 @@ datalogUi.controller('mainController', ['$scope', '$http', '$interval', function
             url: '/sensors',
             data: sensor
         }).then(function (res) {
-            $scope.sensorData.unregisteredSensors = res.data.unregisteredSensors;
-            $scope.sensorData.registeredSensors = res.data.registeredSensors;
+            updateSensorLists(res.data);
+        }, function (err) {
             $scope.sensorData.fetched = true;
+            $scope.sensorData.registeredSensors.forEach(function (registered_sensor, i, array) {
+                if(registered_sensor.devices_id == sensor.devices_id) {
+                    array[i]['error'] = err.data;
+                }
+            });
+        });
+    };
+
+    $scope.sensorClearConfirm = function (sensor) {
+        $scope.dialogs.clearConfirm = true;
+        $scope.dialogs.clearSensor = sensor;
+    };
+
+    $scope.sensorCancelClear = function () {
+        $scope.dialogs.clearConfirm = false;
+        $scope.dialogs.clearSensor = null;
+    };
+
+    $scope.clearSensor = function () {
+        $scope.dialogs.clearConfirm = false;
+        $scope.sensorData.fetched = false;
+        $http({
+            method: 'PUT',
+            url: '/sensors/clear',
+            data: { devices_id: $scope.dialogs.clearSensor.devices_id }
+        }).then(function (res) {
+            updateSensorLists(res.data);
         }, function (err) {
         });
     };
 
-    $scope.deleteSensor = function (sensor) {
+    $scope.sensorDeleteConfirm = function (sensor) {
+        $scope.dialogs.deleteConfirm = true;
+        $scope.dialogs.deleteSensor = sensor;
+    };
+
+    $scope.sensorCancelDelete = function () {
+        $scope.dialogs.deleteConfirm = false;
+        $scope.dialogs.deleteId = null;
+    };
+
+    $scope.deleteSensor = function () {
+        console.log("DELETING SENSOR:");
+        console.log($scope.dialogs.deleteSensor);
+        $scope.dialogs.deleteConfirm = false;
+
         $scope.sensorData.fetched = false;
         $http({
             method: 'DELETE',
-            url: '/sensors/' + sensor.devices_id,
+            url: '/sensors/' + $scope.dialogs.deleteSensor.devices_id,
         }).then(function (res) {
-            $scope.sensorData.unregisteredSensors = res.data.unregisteredSensors;
-            $scope.sensorData.registeredSensors = res.data.registeredSensors;
-            $scope.sensorData.fetched = true;
+            updateSensorLists(res.data);
         }, function (err) {
         });
     };

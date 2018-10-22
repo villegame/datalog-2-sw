@@ -16,6 +16,7 @@
         <script src="/socket.io/socket.io.js"></script>     <!-- load socket -->
         <script src="plotly/plotly-latest.min.js"></script> <!-- load plotly -->
         <script src="charts.js"></script>           <!-- load charts -->
+        <script src="latest.js"></script>           <!-- load charts -->
 
     </head>
 
@@ -82,7 +83,6 @@
         </ul>
 
         <div class="container" ng-show="view=='config'" ng-cloak>
-
             <div class="login-form text-center" ng-show="!loginData.logged">
                 <h2>You need to log in to change settings</h2>
                 <form>
@@ -100,6 +100,26 @@
                 <p>Loading sensor data...</p>
             </div>
 
+            <div class="container dialog-bg" ng-show="loginData.logged && dialogs.deleteConfirm" ng-cloak>
+                <div class="form-dialog text-center">
+                    <h2>Confirm delete!</h2>
+                    <div class="d-flex justify-content-between">
+                        <input type="button" class="btn btn-primary" value="Cancel" ng-click="sensorCancelDelete()">
+                        <input type="button" class="btn btn-danger" value="Delete" ng-click="deleteSensor()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="container dialog-bg" ng-show="loginData.logged && dialogs.clearConfirm" ng-cloak>
+                <div class="form-dialog text-center">
+                    <h2>Confirm clear data!</h2>
+                    <div class="d-flex justify-content-between">
+                        <input type="button" class="btn btn-primary" value="Cancel" ng-click="sensorCancelClear()">
+                        <input type="button" class="btn btn-danger" value="Clear" ng-click="clearSensor()">
+                    </div>
+                </div>
+            </div>
+
             <div ng-show="sensorData.fetched && loginData.logged">
 
                 <div ng-show="!sensorData.unregisteredSensors.length && !sensorData.registeredSensors.length">
@@ -109,186 +129,231 @@
                     </div>
                 </div>
 
-                <div class="card-deck mt-4">
-                    <div class="card" ng-show="sensorData.unregisteredSensors.length">
-                        <h5 class="card-header">Unregistered sensors </h5>
-                        <div class="card-body p-2">
-                            <table>
-                                <tr>
-                                    <th>Source</th>
-                                    <th>Type</th>
-                                    <th>Name</th>
-                                    <th>Color</th>
-                                    <th></th>
-                                </tr>
-                                <tr ng-repeat="newSensor in sensorData.unregisteredSensors">
-                                    <td>
-                                        <form class="form-inline">
-                                        <input type="text" name="source" ng-model="newSensor.source" readonly="true">
-                                    </td><td>
-                                        <input type="text" name="type" ng-model="newSensor.type" readonly="true">
-                                    </td><td>
-                                        <input type="text" name="source" ng-model="newSensor.name" placeholder="Sensor name">
-                                    </td><td>
-                                        <select name="color" ng-model="newSensor.color">
-                                            <option value="red">Red</option>
-                                            <option value="green">Green</option>
-                                            <option value="blue">Blue</option>
-                                            <option value="gold">Gold</option>
-                                            <option value="cyan">Cyan</option>
-                                            <option value="pink">Pink</option>
-                                        </select>
-                                    </td><td>
-                                        <input type="button" class="btn btn-primary" value="Register sensor" ng-click="registerSensor(newSensor)">
-                                        </form>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card-deck mt-4">
-                    <div class="card" ng-show="sensorData.registeredSensors.length">
-                        <h5 class="card-header">Registered sensors </h5>
-                        <div class="card-body p-2">
-                            <table>
-                                <tr>
-                                    <th>Source</th>
-                                    <th>Type</th>
-                                    <th>Name</th>
-                                    <th>Color</th>
-                                    <th>Enabled</th>
-                                    <th></th>
-                                    <th></th>
-                                </tr>
-                                <tr ng-repeat="editSensor in sensorData.registeredSensors">
-                                    <td>
-                                        <form class="form-inline">
-                                        <input type="hidden" name="id" ng-model="editSensor.devices_id">
-                                        <input type="text" name="source" ng-model="editSensor.devices_source" readonly="true">
-                                    </td><td>
-                                        <input type="text" name="type" ng-model="editSensor.devices_type" readonly="true">
-                                    </td><td>
-                                        <input type="text" name="source" ng-model="editSensor.devices_name">
-                                    </td><td>
-                                        <select name="color" ng-model="editSensor.devices_color">
-                                            <option value="red" selected="sensor.devices_color=='red'">Red</option>
-                                            <option value="green" selected="sensor.devices_color=='green'">Green</option>
-                                            <option value="blue" selected="sensor.devices_color=='blue'">Blue</option>
-                                            <option value="gold" selected="sensor.devices_color=='gold'">Gold</option>
-                                            <option value="cyan" selected="sensor.devices_color=='cyan'">Cyan</option>
-                                            <option value="pink" selected="sensor.devices_color=='pink'">Pink</option>
-                                        </select>
-                                    </td><td>
-                                        <input type="checkbox" ng-model="editSensor.devices_enabled" name="enabled" checked="editSensor.devices_enabled">
-                                    </td><td>
-                                        <input type="button" class="btn btn-primary" value="Update" ng-click="updateSensor(editSensor)">
-                                    </td><td>
-                                        <input type="button" class="btn btn-danger" value="Delete" ng-click="deleteSensor(editSensor)">
-                                        </form>
-                                    </td>
-                                </tr>
-                            </table>
+                <div class="card m-1" ng-show="sensorData.unregisteredSensors.length">
+                    <h5 class="card-header">Unregistered sensors</h5>
+                    <div class="card-deck">
+                        <div class="card col-md-4 p-2 m-1" ng-repeat="newSensor in sensorData.unregisteredSensors">
+                            <div class="card-body m-1">
+                                <div class="d-flex justify-content-between">
+                                    <label for="source">Source</label>
+                                    <input type="text" name="source" ng-model="newSensor.source" readonly="true">
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <label for="type">Type</label>
+                                    <input type="text" name="type" ng-model="newSensor.type" readonly="true">
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <label for="name">Name</label>
+                                    <input type="text" name="name" ng-model="newSensor.name">
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <label for="color">Color</label>
+                                    <select name="color" ng-model="newSensor.color">
+                                        <option value="red">Red</option>
+                                        <option value="green">Green</option>
+                                        <option value="blue">Blue</option>
+                                        <option value="gold">Gold</option>
+                                        <option value="cyan">Cyan</option>
+                                        <option value="pink">Pink</option>
+                                    </select>
+                                </div>
+                                <!-- <div class="d-flex justify-content-between">
+                                    <label for="temp_offset">Temperature offset</label>
+                                    <input type="number" name="temp_offset" ng-model="editSensor.devices_temp_offset" step="0.1">
+                                </div>
+                                <div class="d-flex justify-content-between" ng-show="{{editSensor.devices_type == 'BME-280'}}">
+                                    <label for="hum_offset">Humidity offset</label>
+                                    <input type="number" name="hum_offset" ng-model="editSensor.devices_hum_offset" step="0.1">
+                                </div>
+                                <div class="d-flex justify-content-between" ng-show="{{editSensor.devices_type == 'BME-280'}}">
+                                    <label for="pres_offset">Pressure offset</label>
+                                    <input type="number" name="pres_offset" ng-model="editSensor.devices_pres_offset" step="0.1">
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <label for="enabled">Enabled</label>
+                                    <input type="checkbox" name="enabled" ng-model="editSensor.devices_enabled" checked="editSensor.devices_enabled">
+                                </div> -->
+                            </div>
+                            <div class="card-footer">
+                                <div class="m-2">
+                                    <input type="button" class="btn btn-primary" value="Register sensor" ng-click="registerSensor(newSensor)">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="card-deck mt-4">
-                    <div class="card" ng-show="sensorData.removedSensors.length">
-                        <h5 class="card-header">Disconnected sensors remaining in database </h5>
-                        <div class="card-body p-2">
-                            <table>
-                                <tr>
-                                    <th>Source</th>
-                                    <th>Type</th>
-                                    <th>Name</th>
-                                    <th>Color</th>
-                                    <th>Enabled</th>
-                                    <th></th>
-                                    <th></th>
-                                </tr>
-                                <tr ng-repeat="editSensor in sensorData.removedSensors">
-                                    <td>
-                                        <form class="form-inline">
-                                        <input type="hidden" name="id" ng-model="editSensor.devices_id">
-                                        <input type="text" name="source" ng-model="editSensor.devices_source" readonly="true">
-                                    </td><td>
-                                        <input type="text" name="type" ng-model="editSensor.devices_type" readonly="true">
-                                    </td><td>
-                                        <input type="text" name="source" ng-model="editSensor.devices_name">
-                                    </td><td>
-                                        <select name="color" ng-model="editSensor.devices_color">
-                                            <option value="red" selected="sensor.devices_color=='red'">Red</option>
-                                            <option value="green" selected="sensor.devices_color=='green'">Green</option>
-                                            <option value="blue" selected="sensor.devices_color=='blue'">Blue</option>
-                                            <option value="gold" selected="sensor.devices_color=='gold'">Gold</option>
-                                            <option value="cyan" selected="sensor.devices_color=='cyan'">Cyan</option>
-                                            <option value="pink" selected="sensor.devices_color=='pink'">Pink</option>
-                                        </select>
-                                    </td><td>
-                                        <input type="checkbox" ng-model="editSensor.devices_enabled" name="enabled" checked="editSensor.devices_enabled" disabled="true">
-                                    </td><td>
-                                        <input type="button" class="btn btn-primary" value="Update" ng-click="updateSensor(editSensor)">
-                                    </td><td>
-                                        <input type="button" class="btn btn-danger" value="Delete" ng-click="deleteSensor(editSensor)">
-                                        </form>
-                                    </td>
-                                </tr>
-                            </table>
+                <div class="card m-1" ng-show="sensorData.registeredSensors.length">
+                    <h5 class="card-header">Registered sensors</h5>
+                    <div class="card-deck">
+                        <div class="card border-info col-md-4 p-2 m-1" ng-repeat="editSensor in sensorData.registeredSensors">
+                            <div class="card-body m-1">
+                                <div class="d-flex justify-content-between">
+                                    <input type="hidden" name="id" ng-model="editSensor.devices_id">
+                                    <label for="source">Source</label>
+                                    <input type="text" name="source" ng-model="editSensor.devices_source" readonly="true">
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <label for="type">Type</label>
+                                    <input type="text" name="type" ng-model="editSensor.devices_type" readonly="true">
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <label for="name">Name</label>
+                                    <input type="text" name="name" ng-model="editSensor.devices_name">
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <label for="color">Color</label>
+                                    <select name="color" ng-model="editSensor.devices_color">
+                                        <option value="red" selected="sensor.devices_color=='red'">Red</option>
+                                        <option value="green" selected="sensor.devices_color=='green'">Green</option>
+                                        <option value="blue" selected="sensor.devices_color=='blue'">Blue</option>
+                                        <option value="gold" selected="sensor.devices_color=='gold'">Gold</option>
+                                        <option value="cyan" selected="sensor.devices_color=='cyan'">Cyan</option>
+                                        <option value="pink" selected="sensor.devices_color=='pink'">Pink</option>
+                                    </select>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <label for="temp_offset">Temperature offset</label>
+                                    <input type="number" name="temp_offset" ng-model="editSensor.devices_temp_offset" step="0.01">
+                                </div>
+                                <div class="d-flex justify-content-between" ng-show="{{editSensor.devices_type == 'BME-280'}}">
+                                    <label for="hum_offset">Humidity offset</label>
+                                    <input type="number" name="hum_offset" ng-model="editSensor.devices_hum_offset" step="0.01">
+                                </div>
+                                <div class="d-flex justify-content-between" ng-show="{{editSensor.devices_type == 'BME-280'}}">
+                                    <label for="pres_offset">Pressure offset</label>
+                                    <input type="number" name="pres_offset" ng-model="editSensor.devices_pres_offset" step="0.01">
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <label for="enabled">Enabled</label>
+                                    <input type="checkbox" name="enabled" ng-model="editSensor.devices_enabled" checked="editSensor.devices_enabled">
+                                </div>
+                                <div ng-show="editSensor.error">
+                                    <p class="font-weight-bold bd-highlight">ERROR: {{editSensor.error}}</a>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="m-2">
+                                    <input type="button" class="btn btn-primary" value="Update" ng-click="updateSensor(editSensor)">
+                                </div>
+                                <div class="m-2">
+                                    <input type="button" class="btn btn-danger" value="Delete" ng-click="sensorDeleteConfirm(editSensor)">
+                                </div>
+                                <div class="m-2">
+                                    <input type="button" class="btn btn-danger" value="Clean data" ng-click="sensorClearConfirm(editSensor)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card m-1" ng-show="sensorData.removedSensors.length">
+                    <h5 class="card-header">Disconnected sensors remaining in database</h5>
+                    <div class="card-deck">
+                        <div class="card col-md-4 p-2 m-1" ng-repeat="editSensor in sensorData.removedSensors">
+                            <div class="card-body m-1">
+                                <div class="d-flex justify-content-between">
+                                    <input type="hidden" name="id" ng-model="editSensor.devices_id">
+                                    <label for="source">Source</label>
+                                    <input type="text" name="source" ng-model="editSensor.devices_source" readonly="true">
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <label for="type">Type</label>
+                                    <input type="text" name="type" ng-model="editSensor.devices_type" readonly="true">
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <label for="name">Name</label>
+                                    <input type="text" name="name" ng-model="editSensor.devices_name" disabled>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <label for="color">Color</label>
+                                    <input type="text" name="color" ng-model="editSensor.devices_color" disabled>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <label for="temp_offset">Temperature offset</label>
+                                    <input type="number" name="temp_offset" ng-model="editSensor.devices_temp_offset" step="0.1" disabled>
+                                </div>
+                                <div class="d-flex justify-content-between" ng-show="{{editSensor.devices_type == 'BME-280'}}">
+                                    <label for="hum_offset">Humidity offset</label>
+                                    <input type="number" name="hum_offset" ng-model="editSensor.devices_hum_offset" step="0.1" disabled>
+                                </div>
+                                <div class="d-flex justify-content-between" ng-show="{{editSensor.devices_type == 'BME-280'}}">
+                                    <label for="pres_offset">Pressure offset</label>
+                                    <input type="number" name="pres_offset" ng-model="editSensor.devices_pres_offset" step="0.1" disabled>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <label for="enabled">Enabled</label>
+                                    <input type="checkbox" name="enabled" ng-model="editSensor.devices_enabled" checked="editSensor.devices_enabled" disabled>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="m-2">
+                                    <input type="button" class="btn btn-danger" value="Delete" ng-click="sensorDeleteConfirm(editSensor)(editSensor)">
+                                </div>
+                                <div class="m-2">
+                                    <input type="button" class="btn btn-danger" value="Clean data" ng-click="sensorClearConfirm(editSensor)(editSensor)">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card-deck mt-4" ng-show="loginData.logged">
-                <div class="card flex flex-column justify-content-between">
-                    <h5 class="card-header">
-                        Sync time
-                    </h5>
-                    <div class="card-body p-2">    
-                        <p class="card-text">Set time to match current time of client.</p>
+            <div class="card" ng-show="loginData.logged">
+                <h5 class="card-header">Tools</h5>
+                <div class="card-deck">
+                    <div class="card col-md-4 p-2 m-1">
+                        <h5 class="card-header">
+                            Sync time
+                        </h5>
+                        <div class="card-body p-2">
+                            <p class="card-text">Set time to match current time of client.</p>
+                        </div>
+                        <div class="card-footer p-2">
+                            <form class="form">
+                                <input type="button" class="btn btn-primary" value="Update device time to match client" ng-click="updateTime()">
+                            </form>
+                        </div>
                     </div>
-                    <div class="card-footer p-2">
-                        <form class="form">
-                            <input type="button" class="btn btn-primary" value="Update device time to match client" ng-click="updateTime()">
-                        </form>
-                    </div>
-                </div>
 
-                <div class="card flex flex-column justify-content-between">
-                    <h5 class="card-header">
-                        Change password
-                    </h5>
-                    <div class="card-body p-2">
-                        <p class="card-text">Change superuser password.</p>
+                    <div class="card col-md-4 p-2 m-1">
+                        <h5 class="card-header">
+                            Change password
+                        </h5>
+                        <div class="card-body p-2">
+                            <p class="card-text">Change superuser password.</p>
+                        </div>
+                        <div class="card-footer p-2">
+                            <form class="form">
+                                <input type="button" class="btn btn-primary" value="Change password" ng-click="changePasswordBtn()">
+                            </form>
+                        </div>
                     </div>
-                    <div class="card-footer p-2">
-                        <form class="form">
-                            <input type="button" class="btn btn-primary" value="Change password" ng-click="changePasswordBtn()">
-                        </form>
+<!--
+                    <div class="card col-md-4 p-2 m-1">
+                        <h5 class="card-header">
+                            Shutdown / restart
+                        </h5>
+                        <div class="card-body p-2">
+                            <p class="card-text">Power off or restart device.</p>
+                        </div>
+                        <div class="card-footer p-2">
+                            <div class="d-flex justify-content-around">
+                                <input type="button" class="btn btn-danger" value="Power off" ng-click="shutdown()">
+                                <input type="button" class="btn btn-danger" value="Restart" ng-click="reboot()">
+                            </div>
+                        </div>
                     </div>
-                </div>
-
-                <div class="card flex flex-column justify-content-between">
-                    <h5 class="card-header">
-                        Shutdown / restart
-                    </h5>
-                    <div class="card-body p-2">
-                        <p class="card-text">Power off or restart device.</p>
-                    </div>
-                    <div class="card-footer p-2 d-flex justify-content-around">
-                        <form class="form">
-                            <input type="button" class="btn btn-danger" value="Power off" ng-click="shutdown()">
-                            <input type="button" class="btn btn-danger" value="Restart" ng-click="reboot()">
-                        </form>
-                    </div>
+-->
                 </div>
             </div>
         </div>
 
         <div class="container" ng-class="{'vis-hidden': view!='live'}" ng-cloak>
 
+            <div class="row d-md-none">
+                <div id="livevalues" class="col-sm-12"></div>
+            </div>
             <div class="row">
                 <div id="tempgraph" class="col-sm-12"></div>
             </div>
@@ -298,11 +363,6 @@
             <div class="row">
                 <div id="presgraph" class="col-sm-12"></div>
             </div>
-
-            <!-- <div class="row">
-                <div id="humgraph" class="col-md-6"></div>
-                <div id="presgraph" class="col-md-6"></div>
-            </div> -->
 
             <script>
 
@@ -322,6 +382,11 @@
                 presChart.init({
                     placement: 'presgraph',
                     property: 'pressure'
+                });
+
+                var latestValues = new LatestGraph();
+                latestValues.init({
+                    placement: 'livevalues'
                 });
             </script>
         </div>
