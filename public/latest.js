@@ -6,7 +6,6 @@ var LatestGraph = function () {
 
     this.init = function (options) {
         placement = options.placement;
-
         $.get('/values/latest', function (data) {
             try {
                 var initData = JSON.parse(data);
@@ -28,10 +27,11 @@ var LatestGraph = function () {
 
                     var sensorTextName = document.createTextNode(sensor.name);
                     button.appendChild(sensorTextName);
-                    var br = document.createElement("br");
-                    button.appendChild(br);
 
                     if (sensor.hasOwnProperty('temperature')) {
+                        var br = document.createElement("br");
+                        button.appendChild(br);
+
                         var sensorTextTemp = document.createTextNode("temp ");
                         button.appendChild(sensorTextTemp);
 

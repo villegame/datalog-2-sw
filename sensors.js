@@ -118,7 +118,6 @@ var getLatestValues = function (cb) {
 
     async.series([
         function (done) {
-            //getSensorsFromDb(function (err, devices) {
             getEnabledSensors(function (err, devices) {
                 if (err) return done(err);
                 devices.forEach(function (device) {
@@ -138,7 +137,7 @@ var getLatestValues = function (cb) {
         },
         function (done) {
             async.mapSeries(valueList, function(data, callback) {
-                db.query("select values_temperature, values_humidity, values_pressure, values_time from temp_mon_schema.values where devices_id = $1 and values_time in (select max(values_time) from temp_mon_schema.values where devices_id=$1);", [data.id], function (err, values) {
+                db.query("select values_temperature, values_humidity, values_pressure, values_time from temp_mon_schema.values where devices_id = $1 order by values_time desc limit 1;", [data.id], function (err, values) {
                     if (err) return callback(err);
                     values.forEach(function(value) {
                         data['time'] = value.values_time;
@@ -170,7 +169,6 @@ var getValues = function (cb) {
 
     async.series([
         function (done) {
-            //getSensorsFromDb(function (err, devices) {
             getEnabledSensors(function (err, devices) {
                 if (err) return done(err);
                 devices.forEach(function (device) {

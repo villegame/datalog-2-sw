@@ -15,8 +15,8 @@
         <script src="core.js"></script>             <!-- load controller -->
         <script src="/socket.io/socket.io.js"></script>     <!-- load socket -->
         <script src="plotly/plotly-latest.min.js"></script> <!-- load plotly -->
-        <script src="charts.js"></script>           <!-- load charts -->
         <script src="latest.js"></script>           <!-- load charts -->
+        <script src="charts.js"></script>           <!-- load charts -->
 
     </head>
 
@@ -366,6 +366,11 @@
 
             <script>
 
+                var latestValues = new LatestGraph();
+                latestValues.init({
+                    placement: 'livevalues'
+                });
+
                 var tempChart = new LineChart();
                 tempChart.init({
                     placement: 'tempgraph',
@@ -384,10 +389,6 @@
                     property: 'pressure'
                 });
 
-                var latestValues = new LatestGraph();
-                latestValues.init({
-                    placement: 'livevalues'
-                });
             </script>
         </div>
 
