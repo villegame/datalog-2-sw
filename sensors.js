@@ -196,7 +196,7 @@ var getValues = function (cb) {
         },
         function (done) {
             async.mapSeries(valueList, function(data, callback) {
-                db.query("select values_temperature, values_humidity, values_pressure, values_time from temp_mon_schema.values where devices_id=$1 and values_time > $2 order by values_time;", [data.id, past], function (err, values) {
+                db.query("select values_temperature, values_humidity, values_pressure, values_time from temp_mon_schema.values where devices_id=$1 and values_time > $2 order by values_time limit 20000;", [data.id, past], function (err, values) {
                     if (err) return callback(err);
                     values.forEach(function(value) {
                         data['time'].push(value.values_time);

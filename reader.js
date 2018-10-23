@@ -29,6 +29,9 @@ var readOneWire = function (sensors, eSensor, timestamp) {
                     id: eSensor.devices_id,
                     name: eSensor.devices_name,
                     color: eSensor.devices_color,
+                    temp_offset: eSensor.devices_temp_offset,
+                    hum_offset: eSensor.devices_hum_offset,
+                    pres_offset: eSensor.devices_pres_offset,
                     enabled: false
                 }, function () {
                 });
@@ -76,11 +79,14 @@ var readBme = function (sensors, eSensor, timestamp) {
                     id: eSensor.devices_id,
                     name: eSensor.devices_name,
                     color: eSensor.devices_color,
+                    temp_offset: eSensor.devices_temp_offset,
+                    hum_offset: eSensor.devices_hum_offset,
+                    pres_offset: eSensor.devices_pres_offset,
                     enabled: false
                 }, function () {
                 });
             }
-            logger.log({ msg: "Exception reading 1W-TEMP sensor.", err: { msg: output.err.msg } });
+            logger.log({ msg: "Exception reading BME-280 sensor.", err: { msg: output.err.msg } });
             return;
         }
 

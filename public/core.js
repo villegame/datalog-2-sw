@@ -165,6 +165,19 @@ datalogUi.controller('mainController', ['$scope', '$http', '$interval', function
         $scope.sensorData.fetched = true;
     };
 
+    var validateOffsets = function (sensor) {
+        if (isNaN(sensor.devices_temp_offset)) {
+            sensor.devices_temp_offset = 0.0;
+        }
+        if (isNaN(sensor.devices_hum_offset)) {
+            sensor.devices_hum_offset = 0.0;
+        }
+        if (isNaN(sensor.devices_pres_offset)) {
+            sensor.devices_pres_offset = 0.0;
+        }
+        return sensor;
+    };
+
     var getSensorData = function () {
         $http({
             method: 'GET',
@@ -197,6 +210,11 @@ datalogUi.controller('mainController', ['$scope', '$http', '$interval', function
     };
 
     $scope.updateSensor = function (sensor) {
+
+        // make sure offset values are set as proper type
+        // TODO: put this somewhere else?
+        sensor = validateOffsets(sensor);
+
         $scope.sensorData.fetched = false;
         $http({
             method: 'PUT',
@@ -205,6 +223,8 @@ datalogUi.controller('mainController', ['$scope', '$http', '$interval', function
         }).then(function (res) {
             updateSensorLists(res.data);
         }, function (err) {
+            console.log("ERROR");
+            console.log(err);
             $scope.sensorData.fetched = true;
             $scope.sensorData.registeredSensors.forEach(function (registered_sensor, i, array) {
                 if(registered_sensor.devices_id == sensor.devices_id) {
@@ -248,8 +268,6 @@ datalogUi.controller('mainController', ['$scope', '$http', '$interval', function
     };
 
     $scope.deleteSensor = function () {
-        console.log("DELETING SENSOR:");
-        console.log($scope.dialogs.deleteSensor);
         $scope.dialogs.deleteConfirm = false;
 
         $scope.sensorData.fetched = false;
@@ -293,7 +311,6 @@ datalogUi.controller('mainController', ['$scope', '$http', '$interval', function
     };
 
     $scope.updateTime = function () {
-        console.log("update");
         $http({
             method: 'POST',
             url: '/tools/sys',
@@ -306,7 +323,6 @@ datalogUi.controller('mainController', ['$scope', '$http', '$interval', function
     };
 
     $scope.reboot = function () {
-        console.log("reboot");
         $http({
             method: 'POST',
             url: '/tools/sys',
@@ -319,7 +335,6 @@ datalogUi.controller('mainController', ['$scope', '$http', '$interval', function
     };
 
     $scope.shutdown = function () {
-        console.log("shutdown");
         $http({
             method: 'POST',
             url: '/tools/sys',
