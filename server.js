@@ -261,6 +261,26 @@ var start = function (app, http, sensors, tools,  auth, logger) {
 	});
     });
 
+    app.post('/remote', function (req, res) {
+	var nowDate = new Date();
+	console.log("got test req " + req.body.temperature + " from " + req.body.device_id);
+	var remoteDeviceId = req.body.device_id;
+	var remoteTemperature = req.body.temperature;
+	if ( typeof remoteDeviceId === 'string' && typeof remoteTemperature === 'number') {
+	    // send to sensors...
+	    sensors.addRemoteValues({
+		id: null,
+		source: remoteDeviceId,
+		temperature: remoteTemperature,
+		humidity: null,
+		pressure: null,
+		time: Math.floor(Date.now()),
+	    }, function (err, res) {
+		if (err) logger.log({ msg: "Error adding REMOTE data.", err: err });
+	    });
+	}
+    });
+
     http.listen(80, function () {
         console.log('listening port 80');
     });

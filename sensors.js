@@ -113,6 +113,35 @@ var addValues = function (data, cb) {
     db.query("insert into temp_mon_schema.values (devices_id, values_temperature, values_humidity, values_pressure, values_time) values ($1, $2, $3, $4, $5);", [data.id, data.temperature, data.humidity, data.pressure, data.time], cb);
 };
 
+var addRemoteValues = function (data, cb) {
+	console.log("adding remote values...");
+	console.log(data);
+	db.query("select devices_id from temp_mon_schema.devices where devices_source = $1;", [data.source], function (err, res) {
+		if (err) {
+			console.log("error adding remote values");
+			return cb(err);
+		}
+		console.log("res:");
+		console.log(res);
+		console.log(res.length);
+		if (res && res.length == 0) {
+			var newSensor = [];
+			newSensor.source = data.source;
+			newSensor.name = data.source;
+			newSensor.type = 'REMOTE';
+			newSensor.color =  'red';
+			addSensor(newSensor, cb);
+		} else {
+			res.forEach(function (device) {
+				console.log("adding...");
+				console.log(data);
+				data.id = device.devices_id;
+				addValues(data, cb);
+			});
+		}
+	});
+};
+
 var getLatestValues = function (cb) {
     var valueList = [];
 
@@ -141,7 +170,7 @@ var getLatestValues = function (cb) {
                     if (err) return callback(err);
                     values.forEach(function(value) {
                         data['time'] = value.values_time;
-                        if(data.type == '1W-TEMP') {
+                        if(data.type == '1W-TEMP' || data.type == 'REMOTE') {
                             data['temperature'] = parseFloat(value.values_temperature) + data.tempOffset;
                         } else if (data.type == 'BME-280') {
                             data['temperature'] = parseFloat(value.values_temperature) + data.tempOffset;
@@ -182,7 +211,7 @@ var getValues = function (cb) {
                         presOffset: device.devices_pres_offset,
                         time: []
                     };
-                    if(newDevice.type == '1W-TEMP') {
+                    if(newDevice.type == '1W-TEMP' || newDevice.type == 'REMOTE') {
                         newDevice['temperature'] = [];
                     } else if(newDevice.type == 'BME-280') {
                         newDevice['temperature'] = [];
@@ -200,7 +229,7 @@ var getValues = function (cb) {
                     if (err) return callback(err);
                     values.forEach(function(value) {
                         data['time'].push(value.values_time);
-                        if(data.type == '1W-TEMP') {
+                        if(data.type == '1W-TEMP' || data.type == 'REMOTE') {
                             data['temperature'].push(parseFloat(value.values_temperature) + data.tempOffset);
                         } else if (data.type == 'BME-280') {
                             data['temperature'].push(parseFloat(value.values_temperature) + data.tempOffset);
@@ -258,6 +287,7 @@ var getAllSensors = function (cb) {
                 storedSensors.forEach(function (sSensor) {
                     if (lSensor.type == "1W-TEMP" && sSensor.devices_type == "1W-TEMP" && lSensor.source == sSensor.devices_source) inDatabase = true;
                     if (lSensor.type == "BME-280" && sSensor.devices_type == "BME-280") inDatabase = true;
+		    if (lSensor.type == "REMOTE" && sSensor.devices_type == "REMOTE") inDatabase = true;
                 });
                 if (!inDatabase) unregisteredSensors.push(lSensor);
             });
@@ -267,6 +297,7 @@ var getAllSensors = function (cb) {
                 localSensors.forEach(function (lSensor) {
                     if (sSensor.devices_type == "1W-TEMP" && sSensor.devices_source == lSensor.source) isLocal = true;
                     if (sSensor.devices_type == "BME-280" && lSensor.type == "BME-280") isLocal = true;
+		    if (sSensor.devices_type == "REMOTE" && lSensor.type == "REMOTE") isLocal = true;
                 });
                 if(isLocal) registeredSensors.push(sSensor);
                 else removedSensors.push(sSensor);
@@ -289,6 +320,7 @@ module.exports = {
     deleteSensor: deleteSensor,
     getEnabledSensors: getEnabledSensors,
     addValues: addValues,
+    addRemoteValues: addRemoteValues,
     getLatestValues: getLatestValues,
     getValues: getValues,
     getAllSensors: getAllSensors

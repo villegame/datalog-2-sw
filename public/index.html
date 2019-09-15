@@ -204,12 +204,12 @@
                                 <div class="d-flex justify-content-between">
                                     <label for="color">Color</label>
                                     <select name="color" ng-model="editSensor.devices_color">
-                                        <option value="red" selected="sensor.devices_color=='red'">Red</option>
-                                        <option value="green" selected="sensor.devices_color=='green'">Green</option>
-                                        <option value="blue" selected="sensor.devices_color=='blue'">Blue</option>
-                                        <option value="gold" selected="sensor.devices_color=='gold'">Gold</option>
-                                        <option value="cyan" selected="sensor.devices_color=='cyan'">Cyan</option>
-                                        <option value="pink" selected="sensor.devices_color=='pink'">Pink</option>
+                                        <option value="red" selected="editSensor.devices_color=='red'">Red</option>
+                                        <option value="green" selected="editSensor.devices_color=='green'">Green</option>
+                                        <option value="blue" selected="editSensor.devices_color=='blue'">Blue</option>
+                                        <option value="gold" selected="editSsensor.devices_color=='gold'">Gold</option>
+                                        <option value="cyan" selected="editSensor.devices_color=='cyan'">Cyan</option>
+                                        <option value="pink" selected="editSensor.devices_color=='pink'">Pink</option>
                                     </select>
                                 </div>
                                 <div class="d-flex justify-content-between">
@@ -263,23 +263,30 @@
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <label for="name">Name</label>
-                                    <input type="text" name="name" ng-model="editSensor.devices_name" disabled>
+                                    <input type="text" name="name" ng-model="editSensor.devices_name">
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <label for="color">Color</label>
-                                    <input type="text" name="color" ng-model="editSensor.devices_color" disabled>
+                                    <select name="color" ng-model="editSensor.devices_color">
+                                        <option value="red" selected="editSensor.devices_color=='red'">Red</option>
+                                        <option value="green" selected="editSensor.devices_color=='green'">Green</option>
+                                        <option value="blue" selected="editSensor.devices_color=='blue'">Blue</option>
+                                        <option value="gold" selected="editSensor.devices_color=='gold'">Gold</option>
+                                        <option value="cyan" selected="editSensor.devices_color=='cyan'">Cyan</option>
+                                        <option value="pink" selected="editSensor.devices_color=='pink'">Pink</option>
+                                    </select>
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <label for="temp_offset">Temperature offset</label>
-                                    <input type="number" name="temp_offset" ng-model="editSensor.devices_temp_offset" step="0.1" disabled>
+                                    <input type="number" name="temp_offset" ng-model="editSensor.devices_temp_offset" step="0.1">
                                 </div>
                                 <div class="d-flex justify-content-between" ng-show="{{editSensor.devices_type == 'BME-280'}}">
                                     <label for="hum_offset">Humidity offset</label>
-                                    <input type="number" name="hum_offset" ng-model="editSensor.devices_hum_offset" step="0.1" disabled>
+                                    <input type="number" name="hum_offset" ng-model="editSensor.devices_hum_offset" step="0.1">
                                 </div>
                                 <div class="d-flex justify-content-between" ng-show="{{editSensor.devices_type == 'BME-280'}}">
                                     <label for="pres_offset">Pressure offset</label>
-                                    <input type="number" name="pres_offset" ng-model="editSensor.devices_pres_offset" step="0.1" disabled>
+                                    <input type="number" name="pres_offset" ng-model="editSensor.devices_pres_offset" step="0.1">
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <label for="enabled">Enabled</label>
@@ -287,6 +294,9 @@
                                 </div>
                             </div>
                             <div class="card-footer">
+				<div class="m-2">
+                                    <input type="button" class="btn btn-primary" value="Update" ng-click="updateSensor(editSensor)">
+                                </div>
                                 <div class="m-2">
                                     <input type="button" class="btn btn-danger" value="Delete" ng-click="sensorDeleteConfirm(editSensor)(editSensor)">
                                 </div>
