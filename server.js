@@ -50,8 +50,8 @@ var start = function (app, http, sensors, tools,  auth, logger) {
 
     app.post('/initsuperuser', function (req, res) {
 
-        if (!req.body.password 
-            || typeof req.body.password != 'string' 
+        if (!req.body.password
+            || typeof req.body.password != 'string'
             || req.body.password.length < 5) {
             return res.status(400).send({ msg: "Invalid input values." });
         }
@@ -158,7 +158,10 @@ var start = function (app, http, sensors, tools,  auth, logger) {
           || typeof req.body.devices_name !== 'string'
           || typeof req.body.devices_source !== 'string'
           || typeof req.body.devices_color !== 'string'
-          || typeof req.body.devices_enabled !== 'boolean') {
+          || typeof req.body.devices_enabled !== 'boolean'
+          || typeof req.body.devices_temp_offset !== 'number'
+          || typeof req.body.devices_hum_offset !== 'number'
+          || typeof req.body.devices_pres_offset !== 'number') {
             return res.status(400).send("Invalid input values.");
         }
 
@@ -166,7 +169,10 @@ var start = function (app, http, sensors, tools,  auth, logger) {
             id: req.body.devices_id,
             name: req.body.devices_name,
             color: req.body.devices_color,
-            enabled: req.body.devices_enabled
+            enabled: req.body.devices_enabled,
+            temp_offset: req.body.devices_temp_offset,
+            hum_offset: req.body.devices_hum_offset,
+            pres_offset: req.body.devices_pres_offset
         }, function (err) {
             if (err) return res.status(400).send(err);
             sensors.getAllSensors(function (err, sensors) {
@@ -192,15 +198,27 @@ var start = function (app, http, sensors, tools,  auth, logger) {
         });
     });
 
+    app.put('/sensors/clear', isAdmin, function (req, res) {
+
+        if (typeof req.body.devices_id !== 'number') return res.status(400).send("Invalid input values.");
+
+        sensors.clearSensor({
+            id: req.body.devices_id
+        }, function (err) {
+            if (err) return res.status(400).send(err);
+            sensors.getAllSensors(function (err, sensors) {
+                if (err) return res.status(500).send({ msg: "Error getting sensors." });
+                res.send(sensors);
+            });
+        });
+    });
+
     app.post('/tools/sys', isAdmin, function (req, res) {
 
         if (!req.body.operation || typeof req.body.operation != 'string') return res.status(400).send("Invalid input values.");
         if (req.body.operation != "setDate" && req.body.operation != "reboot" && req.body.operation != "shutdown") return res.status(400).send("Invalid operation.");
 
         if (req.body.operation == "setDate" && typeof req.body.params !== 'number') return res.status(400).send("Invalid input values.");
-
-        console.log("OPERATION: ", req.body.operation);
-        console.log("PARAMS: ", req.body.params);
 
         tools.runSystemOperation({ operation : req.body.operation, params : req.body.params }, function (err) {
             if (err) return res.status(500).send(err);
@@ -211,6 +229,18 @@ var start = function (app, http, sensors, tools,  auth, logger) {
     app.get('/values', function (req, res) {
 
         sensors.getValues(function (err, values) {
+            if (err) return res.status(400).send(err);
+            try {
+                res.send(JSON.stringify(values));
+            } catch (e) {
+                return res.status(400).send(e);
+            }
+        });
+    });
+
+    app.get('/values/latest', function (req, res) {
+
+        sensors.getLatestValues(function (err, values) {
             if (err) return res.status(400).send(err);
             try {
                 res.send(JSON.stringify(values));

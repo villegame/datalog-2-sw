@@ -29,6 +29,9 @@ var readOneWire = function (sensors, eSensor, timestamp) {
                     id: eSensor.devices_id,
                     name: eSensor.devices_name,
                     color: eSensor.devices_color,
+                    temp_offset: eSensor.devices_temp_offset,
+                    hum_offset: eSensor.devices_hum_offset,
+                    pres_offset: eSensor.devices_pres_offset,
                     enabled: false
                 }, function () {
                 });
@@ -40,7 +43,7 @@ var readOneWire = function (sensors, eSensor, timestamp) {
         io.emit('sensor-data', {
             id: eSensor.devices_id,
             sensor: eSensor.type,
-            temperature: output.temperature,
+            temperature: output.temperature + eSensor.devices_temp_offset,
             time: timestamp
         });
         sensors.addValues({
@@ -76,20 +79,23 @@ var readBme = function (sensors, eSensor, timestamp) {
                     id: eSensor.devices_id,
                     name: eSensor.devices_name,
                     color: eSensor.devices_color,
+                    temp_offset: eSensor.devices_temp_offset,
+                    hum_offset: eSensor.devices_hum_offset,
+                    pres_offset: eSensor.devices_pres_offset,
                     enabled: false
                 }, function () {
                 });
             }
-            logger.log({ msg: "Exception reading 1W-TEMP sensor.", err: { msg: output.err.msg } });
+            logger.log({ msg: "Exception reading BME-280 sensor.", err: { msg: output.err.msg } });
             return;
         }
 
         io.emit('sensor-data', {
             id: eSensor.devices_id,
             sensor: eSensor.type,
-            temperature: output.temperature,
-            pressure: output.pressure,
-            humidity: output.humidity,
+            temperature: output.temperature + eSensor.devices_temp_offset,
+            pressure: output.pressure + eSensor.devices_pres_offset,
+            humidity: output.humidity + eSensor.devices_hum_offset,
             time: timestamp
         });
         sensors.addValues({
@@ -99,7 +105,9 @@ var readBme = function (sensors, eSensor, timestamp) {
             pressure: output.pressure,
             time: timestamp
         }, function (err, res) {
-            if (err) logger.log({ msg: "Error adding BME-280 data.", err: err });
+            if (err) {
+                logger.log({ msg: "Error adding BME-280 data.", err: err });
+            }
         });
     });
 
@@ -118,7 +126,9 @@ var start = function (http, sensors, log) {
             function (done) {
                 // Get list of enabled sensors in database
                 sensors.getEnabledSensors(function (err, results) {
-                    if (err) return done(err);
+                    if (err) {
+                        return done(err);
+                    }
                     enabledSensors = results;
                     done();
                 });
@@ -135,8 +145,12 @@ var start = function (http, sensors, log) {
 
                 enabledSensors.forEach(function (eSensor) {
 
-                    if(eSensor.devices_type == '1W-TEMP') readOneWire(sensors, eSensor, timestamp);
-                    if(eSensor.devices_type == 'BME-280') readBme(sensors, eSensor, timestamp);
+                    if(eSensor.devices_type == '1W-TEMP') {
+                        readOneWire(sensors, eSensor, timestamp);
+                    }
+                    if(eSensor.devices_type == 'BME-280') {
+                        readBme(sensors, eSensor, timestamp);
+                    }
 
                 });
             }
