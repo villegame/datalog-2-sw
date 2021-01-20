@@ -25,6 +25,6 @@
     "express-session": "^1.16.2",
     "method-override": "^2.3.10",
     "pg": "^7.12.1",
-    "socket.io": "^2.2.0"
+    "socket.io": "^2.4.0"
   }
 }
